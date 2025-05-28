@@ -1,10 +1,11 @@
 """
-Data save/load manager for roster and lineups
+Data save/load manager for roster, lineups, and equipment
 """
 import json
 import streamlit as st
 from datetime import datetime, time
 from models.athlete import Athlete
+from models.boat import Boat
 
 class DataManager:
     """Manager for saving and loading all application data"""
@@ -12,7 +13,7 @@ class DataManager:
     def save_data(self):
         """Save all data to JSON format"""
         data = {
-            "version": "1.0",
+            "version": "1.1",  # Updated version for equipment support
             "saved_at": datetime.now().isoformat(),
             "parameters": {
                 "event_spacing_minutes": st.session_state.event_spacing_minutes,
@@ -21,11 +22,14 @@ class DataManager:
                 "regatta_start_time": st.session_state.regatta_start_time.isoformat(),
                 "exclude_lightweight": st.session_state.exclude_lightweight,
                 "meet_minutes_before": st.session_state.meet_minutes_before,
-                "launch_minutes_before": st.session_state.launch_minutes_before
+                "launch_minutes_before": st.session_state.launch_minutes_before,
+                "land_minutes_after": getattr(st.session_state, 'land_minutes_after', 15)
             },
             "athletes": self._serialize_athletes(),
             "lineups": self._serialize_lineups(),
-            "selected_events": list(getattr(st.session_state, 'selected_events', set()))
+            "selected_events": list(getattr(st.session_state, 'selected_events', set())),
+            "boats": self._serialize_boats(),
+            "boat_assignments": self._serialize_boat_assignments()
         }
         
         json_str = json.dumps(data, indent=2)
@@ -48,6 +52,7 @@ class DataManager:
             st.session_state.exclude_lightweight = params.get("exclude_lightweight", True)
             st.session_state.meet_minutes_before = params.get("meet_minutes_before", 40)
             st.session_state.launch_minutes_before = params.get("launch_minutes_before", 30)
+            st.session_state.land_minutes_after = params.get("land_minutes_after", 15)
             
             if "regatta_start_date" in params:
                 st.session_state.regatta_start_date = datetime.fromisoformat(params["regatta_start_date"]).date()
@@ -70,6 +75,7 @@ class DataManager:
                     name=athlete_data["name"],
                     gender=athlete_data["gender"],
                     age=athlete_data["age"],
+                    weight=athlete_data.get("weight", 160),  # Default weight if not present
                     can_port=athlete_data.get("can_port", True),
                     can_starboard=athlete_data.get("can_starboard", True),
                     can_scull=athlete_data.get("can_scull", True),
@@ -81,6 +87,22 @@ class DataManager:
             
             st.session_state.athletes = new_athletes
             print(f"Set {len(st.session_state.athletes)} athletes in session state")
+            
+            # Load boats
+            boats_data = data.get("boats", [])
+            new_boats = []
+            for boat_data in boats_data:
+                boat = Boat(
+                    name=boat_data["name"],
+                    boat_type=boat_data["boat_type"],
+                    num_seats=boat_data["num_seats"],
+                    min_weight=boat_data["min_weight"],
+                    max_weight=boat_data["max_weight"]
+                )
+                new_boats.append(boat)
+            
+            st.session_state.boats = new_boats
+            print(f"Set {len(st.session_state.boats)} boats in session state")
             
             # Load lineups - FORCE new dict
             lineups_data = data.get("lineups", {})
@@ -123,6 +145,25 @@ class DataManager:
             st.session_state.lineups = new_lineups
             print(f"Set {len(st.session_state.lineups)} lineups in session state")
             
+            # Load boat assignments
+            boat_assignments_data = data.get("boat_assignments", {})
+            new_boat_assignments = {}
+            for event_num_str, boat_data in boat_assignments_data.items():
+                event_num = int(event_num_str)
+                # Find matching boat from our loaded boats
+                matching_boat = None
+                for boat in st.session_state.boats:
+                    if (boat.name == boat_data["name"] and 
+                        boat.boat_type == boat_data["boat_type"]):
+                        matching_boat = boat
+                        break
+                
+                if matching_boat:
+                    new_boat_assignments[event_num] = matching_boat
+            
+            st.session_state.boat_assignments = new_boat_assignments
+            print(f"Set {len(st.session_state.boat_assignments)} boat assignments in session state")
+            
             # Load selected events
             if "selected_events" in data:
                 st.session_state.selected_events = set(data["selected_events"])
@@ -133,7 +174,7 @@ class DataManager:
             
             return {
                 "success": True, 
-                "message": f"Successfully loaded {len(st.session_state.athletes)} athletes, {len(st.session_state.lineups)} lineups, and {len(st.session_state.selected_events)} selected events",
+                "message": f"Successfully loaded {len(st.session_state.athletes)} athletes, {len(st.session_state.lineups)} lineups, {len(st.session_state.boats)} boats, and {len(st.session_state.boat_assignments)} boat assignments",
                 "timestamp": data.get('saved_at', 'unknown time')
             }
             
@@ -154,6 +195,7 @@ class DataManager:
                 "name": athlete.name,
                 "gender": athlete.gender,
                 "age": athlete.age,
+                "weight": athlete.weight,
                 "can_port": athlete.can_port,
                 "can_starboard": athlete.can_starboard,
                 "can_scull": athlete.can_scull,
@@ -163,23 +205,31 @@ class DataManager:
             })
         return athletes_data
     
-    def _deserialize_athletes(self, athletes_data):
-        """Convert serialized data back to Athlete objects"""
-        athletes = []
-        for data in athletes_data:
-            athlete = Athlete(
-                name=data["name"],
-                gender=data["gender"],
-                age=data["age"],
-                can_port=data.get("can_port", True),
-                can_starboard=data.get("can_starboard", True),
-                can_scull=data.get("can_scull", True),
-                can_cox=data.get("can_cox", False),
-                preferred_events=data.get("preferred_events", []),
-                available_days=data.get("available_days", ["Thursday", "Friday", "Saturday", "Sunday"])
-            )
-            athletes.append(athlete)
-        return athletes
+    def _serialize_boats(self):
+        """Convert boats to serializable format"""
+        boats_data = []
+        for boat in getattr(st.session_state, 'boats', []):
+            boats_data.append({
+                "name": boat.name,
+                "boat_type": boat.boat_type,
+                "num_seats": boat.num_seats,
+                "min_weight": boat.min_weight,
+                "max_weight": boat.max_weight
+            })
+        return boats_data
+    
+    def _serialize_boat_assignments(self):
+        """Convert boat assignments to serializable format"""
+        assignments_data = {}
+        for event_num, boat in getattr(st.session_state, 'boat_assignments', {}).items():
+            assignments_data[str(event_num)] = {
+                "name": boat.name,
+                "boat_type": boat.boat_type,
+                "num_seats": boat.num_seats,
+                "min_weight": boat.min_weight,
+                "max_weight": boat.max_weight
+            }
+        return assignments_data
     
     def _serialize_lineups(self):
         """Convert lineups to serializable format"""
@@ -191,17 +241,6 @@ class DataManager:
             }
         return lineups_data
     
-    def _deserialize_lineups(self, lineups_data):
-        """Convert serialized lineups back to lineup format"""
-        lineups = {}
-        for event_num_str, lineup_data in lineups_data.items():
-            event_num = int(event_num_str)
-            lineups[event_num] = {
-                "athletes": [self._dict_to_athlete(a_dict) for a_dict in lineup_data.get("athletes", [])],
-                "coxswain": self._dict_to_athlete(lineup_data["coxswain"]) if lineup_data.get("coxswain") else None
-            }
-        return lineups
-    
     def _athlete_to_dict(self, athlete):
         """Convert athlete object to dictionary"""
         if athlete is None:
@@ -210,6 +249,7 @@ class DataManager:
             "name": athlete.name,
             "gender": athlete.gender,
             "age": athlete.age,
+            "weight": athlete.weight,
             "can_port": athlete.can_port,
             "can_starboard": athlete.can_starboard,
             "can_scull": athlete.can_scull,
@@ -217,28 +257,3 @@ class DataManager:
             "preferred_events": athlete.preferred_events,
             "available_days": getattr(athlete, 'available_days', ["Thursday", "Friday", "Saturday", "Sunday"])
         }
-    
-    def _dict_to_athlete(self, athlete_dict):
-        """Convert dictionary back to athlete object"""
-        if athlete_dict is None:
-            return None
-        
-        # Find the corresponding athlete in the current roster
-        for athlete in st.session_state.athletes:
-            if (athlete.name == athlete_dict["name"] and 
-                athlete.gender == athlete_dict["gender"] and 
-                athlete.age == athlete_dict["age"]):
-                return athlete
-        
-        # If not found, create a new athlete (shouldn't happen with proper workflow)
-        return Athlete(
-            name=athlete_dict["name"],
-            gender=athlete_dict["gender"],
-            age=athlete_dict["age"],
-            can_port=athlete_dict.get("can_port", True),
-            can_starboard=athlete_dict.get("can_starboard", True),
-            can_scull=athlete_dict.get("can_scull", True),
-            can_cox=athlete_dict.get("can_cox", False),
-            preferred_events=athlete_dict.get("preferred_events", []),
-            available_days=athlete_dict.get("available_days", ["Thursday", "Friday", "Saturday", "Sunday"])
-        )

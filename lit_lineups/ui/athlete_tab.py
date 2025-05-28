@@ -19,9 +19,13 @@ def render_athlete_tab():
         st.info("No lineups created yet.")
         return
     
+    # Sort athletes alphabetically by name
+    sorted_athletes = sorted(enumerate(st.session_state.athletes), key=lambda x: x[1].name)
+    sorted_indices = [idx for idx, athlete in sorted_athletes]
+    
     selected_athlete_index = st.selectbox("Select Athlete", 
-                                         options=range(len(st.session_state.athletes)),
-                                         format_func=lambda x: f"{st.session_state.athletes[x].name} ({st.session_state.athletes[x].gender}, {st.session_state.athletes[x].age})")
+                                         options=sorted_indices,
+                                         format_func=lambda x: f"{st.session_state.athletes[x].name} ({st.session_state.athletes[x].gender}, {st.session_state.athletes[x].age}, {st.session_state.athletes[x].weight}lbs)")
     
     if selected_athlete_index is not None:
         selected_athlete = st.session_state.athletes[selected_athlete_index]
@@ -171,16 +175,50 @@ def _get_athlete_events(athlete):
                 meet_time = event_time - timedelta(minutes=st.session_state.meet_minutes_before)
                 launch_time = event_time - timedelta(minutes=st.session_state.launch_minutes_before)
                 
+                # Get boat assignment
+                boat_name = "Not assigned"
+                if hasattr(st.session_state, 'boat_assignments') and event_num in st.session_state.boat_assignments:
+                    boat = st.session_state.boat_assignments[event_num]
+                    boat_name = boat.name
+                
+                # Get crew members (other people in the boat)
+                crew_members = _get_crew_members(event_num, athlete)
+                
                 athlete_events.append({
                     'Meet Time': meet_time.strftime("%H:%M"),
                     'Launch Time': launch_time.strftime("%H:%M"),
                     'Race Time': event_time.strftime("%H:%M"),
                     'Event': f"{event_num}: {event_name}",
                     'Role': role,
+                    'Boat': boat_name,
+                    'Crew': crew_members,
                     'event_time_obj': event_time  # For sorting and quick turnaround detection
                 })
     
     return athlete_events
+
+def _get_crew_members(event_num, selected_athlete):
+    """Get list of other crew members in the same boat for an event"""
+    if event_num not in st.session_state.lineups:
+        return "No lineup"
+    
+    lineup = st.session_state.lineups[event_num]
+    crew_names = []
+    
+    # Add rowers (excluding the selected athlete)
+    for athlete in lineup.get('athletes', []):
+        if athlete is not None and athlete != selected_athlete:
+            crew_names.append(athlete.name)
+    
+    # Add coxswain (excluding the selected athlete if they are cox)
+    coxswain = lineup.get('coxswain')
+    if coxswain is not None and coxswain != selected_athlete:
+        crew_names.append(f"{coxswain.name} (Cox)")
+    
+    if not crew_names:
+        return "Solo"
+    
+    return ", ".join(crew_names)
 
 def _get_seat_name(seat_idx, requirements):
     """Get the name for a seat position"""

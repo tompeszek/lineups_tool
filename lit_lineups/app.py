@@ -7,7 +7,8 @@ from ui.lineup_tab import render_lineup_tab
 from ui.schedule_tab import render_schedule_tab
 from ui.athlete_tab import render_athlete_tab
 from ui.equipment_tab import render_equipment_tab
-from ui.data_tab import render_data_tab  # Add this import
+from ui.data_tab import render_data_tab
+from ui.issues_tab import render_issues_tab
 from models.session_state import initialize_session_state
 
 # Set page config for wide layout
@@ -64,6 +65,14 @@ st.session_state.launch_minutes_before = st.sidebar.number_input(
     value=st.session_state.launch_minutes_before
 )
 
+st.session_state.land_minutes_after = st.sidebar.number_input(
+    "Minutes after race to land", 
+    min_value=5, 
+    max_value=30, 
+    value=st.session_state.land_minutes_after,
+    help="Time needed to return boat to dock after racing"
+)
+
 st.sidebar.subheader("Event Timing")
 st.session_state.event_spacing_minutes = st.sidebar.number_input(
     "Event Spacing (minutes)", 
@@ -80,17 +89,18 @@ st.session_state.min_gap_minutes = st.sidebar.number_input(
 )
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
-    "💾 Data Management",  # Moved to first
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "💾 Data Management",
     "📋 Roster Management", 
     "🏁 Event Lineups", 
     "📅 Schedule View", 
     "👤 Athlete View", 
-    "⛵ Equipment"
+    "⛵ Equipment",
+    "⚠️ Issues"
 ])
 
 with tab1:
-    render_data_tab()  # Now first
+    render_data_tab()
 
 with tab2:
     render_roster_tab()
@@ -106,3 +116,6 @@ with tab5:
 
 with tab6:
     render_equipment_tab()
+
+with tab7:
+    render_issues_tab()

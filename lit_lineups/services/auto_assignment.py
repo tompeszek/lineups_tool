@@ -67,8 +67,9 @@ class AutoAssignment:
         if not eligible_athletes:
             return {"success": False, "message": "No eligible athletes available"}
         
-        # Assign athletes
-        lineup = {'athletes': [], 'coxswain': None}
+        # Assign athletes - use a set to track assigned athletes to prevent duplicates
+        assigned_athletes = []
+        coxswain = None
         
         # Take as many athletes as we can, up to the requirement
         athletes_to_assign = min(len(eligible_athletes), requirements['num_rowers'])
@@ -83,23 +84,40 @@ class AutoAssignment:
             men_to_take = min(len(men), needed_per_gender, athletes_to_assign // 2)
             women_to_take = min(len(women), needed_per_gender, athletes_to_assign - men_to_take)
             
-            lineup['athletes'].extend(men[:men_to_take])
-            lineup['athletes'].extend(women[:women_to_take])
+            # Add men (avoiding duplicates)
+            for athlete in men[:men_to_take]:
+                if athlete not in assigned_athletes:
+                    assigned_athletes.append(athlete)
+            
+            # Add women (avoiding duplicates)
+            for athlete in women[:women_to_take]:
+                if athlete not in assigned_athletes:
+                    assigned_athletes.append(athlete)
             
             # Fill remaining spots with any gender if we're short
-            remaining_spots = athletes_to_assign - len(lineup['athletes'])
-            remaining_athletes = [a for a in eligible_athletes if a not in lineup['athletes']]
-            lineup['athletes'].extend(remaining_athletes[:remaining_spots])
+            remaining_spots = athletes_to_assign - len(assigned_athletes)
+            for athlete in eligible_athletes:
+                if athlete not in assigned_athletes and len(assigned_athletes) < athletes_to_assign:
+                    assigned_athletes.append(athlete)
         else:
             # For single-gender events or if age matters, try to optimize
             if self._check_age_eligibility(eligible_athletes, event_name, athletes_to_assign):
                 best_combo = self._find_best_age_combination(eligible_athletes, athletes_to_assign, event_name)
                 if best_combo:
-                    lineup['athletes'] = best_combo
+                    assigned_athletes = list(best_combo)  # Convert to list and ensure uniqueness
                 else:
-                    lineup['athletes'] = eligible_athletes[:athletes_to_assign]
+                    assigned_athletes = eligible_athletes[:athletes_to_assign]
             else:
-                lineup['athletes'] = eligible_athletes[:athletes_to_assign]
+                assigned_athletes = eligible_athletes[:athletes_to_assign]
+        
+        # Remove any potential duplicates (shouldn't happen but safety check)
+        seen = set()
+        unique_assigned = []
+        for athlete in assigned_athletes:
+            if athlete not in seen:
+                seen.add(athlete)
+                unique_assigned.append(athlete)
+        assigned_athletes = unique_assigned
         
         # Assign coxswain if needed - coxswain can be any gender/age
         if requirements['has_cox']:
@@ -108,29 +126,29 @@ class AutoAssignment:
             for athlete in st.session_state.athletes:
                 if (athlete.can_cox and 
                     athlete.is_available_on_day(event_day) and 
-                    athlete not in lineup['athletes']):
+                    athlete not in assigned_athletes):  # Make sure cox is not already assigned as rower
                     all_available_coxes.append(athlete)
             
             if all_available_coxes:
-                lineup['coxswain'] = all_available_coxes[0]
+                coxswain = all_available_coxes[0]
             else:
                 # If no available cox, try to swap someone from the crew
-                crew_coxes = [a for a in lineup['athletes'] if a.can_cox]
+                crew_coxes = [a for a in assigned_athletes if a.can_cox]
                 if crew_coxes:
-                    # Move a cox from crew to coxswain position, don't replace them
+                    # Move a cox from crew to coxswain position
                     cox_to_move = crew_coxes[0]
-                    lineup['athletes'].remove(cox_to_move)
-                    lineup['coxswain'] = cox_to_move
+                    assigned_athletes.remove(cox_to_move)
+                    coxswain = cox_to_move
         
         # Save the lineup with proper structure (array with None placeholders)
         final_lineup = {'athletes': [None] * requirements['num_rowers'], 'coxswain': None}
         
-        # Fill in the assigned athletes
-        for i, athlete in enumerate(lineup['athletes']):
+        # Fill in the assigned athletes (ensuring no duplicates)
+        for i, athlete in enumerate(assigned_athletes):
             if i < len(final_lineup['athletes']):
                 final_lineup['athletes'][i] = athlete
         
-        final_lineup['coxswain'] = lineup.get('coxswain')
+        final_lineup['coxswain'] = coxswain
         
         st.session_state.lineups[event_num] = final_lineup
         

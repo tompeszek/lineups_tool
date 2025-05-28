@@ -57,6 +57,7 @@ def render_roster_tab():
         
         with col2:
             age = st.number_input("Age", min_value=18, max_value=100, value=25)
+            weight = st.number_input("Weight (lbs)", min_value=100, max_value=300, value=160)
             can_cox = st.checkbox("Can Cox")
         
         with col3:
@@ -101,7 +102,7 @@ def render_roster_tab():
                 if not available_days:
                     st.error("Please select at least one available day")
                 else:
-                    new_athlete = Athlete(name, gender, age, can_port, can_starboard, can_scull, 
+                    new_athlete = Athlete(name, gender, age, weight, can_port, can_starboard, can_scull, 
                                         can_cox, preferred_list, available_days)
                     st.session_state.athletes.append(new_athlete)
                     st.success(f"Added {name} to roster!")
@@ -137,6 +138,7 @@ def render_roster_tab():
                 'Name': athlete.name,
                 'Gender': athlete.gender,
                 'Age': athlete.age,
+                'Weight': athlete.weight,
                 'Category': athlete.age_category,
                 'Port': '✓' if athlete.can_port else '✗',
                 'Starboard': '✓' if athlete.can_starboard else '✗',
@@ -190,6 +192,7 @@ def render_roster_tab():
             
             with col2:
                 edit_age = st.number_input("Age", min_value=18, max_value=100, value=athlete.age)
+                edit_weight = st.number_input("Weight (lbs)", min_value=100, max_value=300, value=athlete.weight)
                 edit_can_cox = st.checkbox("Can Cox", value=athlete.can_cox)
             
             with col3:
@@ -240,7 +243,7 @@ def render_roster_tab():
                             st.error("Please select at least one available day")
                         else:
                             # Update the athlete
-                            updated_athlete = Athlete(edit_name, edit_gender, edit_age, edit_can_port, 
+                            updated_athlete = Athlete(edit_name, edit_gender, edit_age, edit_weight, edit_can_port, 
                                                     edit_can_starboard, edit_can_scull, edit_can_cox, 
                                                     edit_preferred_list, edit_available_days)
                             st.session_state.athletes[st.session_state.editing_athlete_idx] = updated_athlete

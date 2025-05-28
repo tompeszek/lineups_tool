@@ -6,12 +6,13 @@ from typing import List
 from .constants import AGE_CATEGORIES
 
 class Athlete:
-    def __init__(self, name: str, gender: str, age: int, can_port: bool = True, 
+    def __init__(self, name: str, gender: str, age: int, weight: int = 160, can_port: bool = True, 
                  can_starboard: bool = True, can_scull: bool = True, can_cox: bool = False,
                  preferred_events: List[str] = None, available_days: List[str] = None):
         self.name = name
         self.gender = gender
         self.age = age
+        self.weight = weight  # weight in pounds
         self.can_port = can_port
         self.can_starboard = can_starboard
         self.can_scull = can_scull
@@ -67,33 +68,47 @@ class Athlete:
         return True
 
 def create_sample_roster():
-    """Create a sample roster of 15 athletes"""
+    """Create a sample roster of athletes with weights"""
     # P - S - X - C
     return [
-        Athlete("Tom Peszek", "M", 40, False, True, True, False, [385,230,332,315,300,230,243,183,158], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Caitlin Turner", "F", 35, False, False, False, True, [385,230, 243], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Shane Farmer", "M", 40, True, False, False, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Doug Brayton", "M", 43, True, True, True, False, [385,230, 243, 284,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Will Bastien", "M", 40, True, True, True, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Dmitriy Yakubov", "M", 35, True, True, True, False, [243,222,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Seth Burns", "M", 40, True, True, True, False, [355, 254, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Glynn Bolitho", "M", 40, True, True, True, False, [355, 254, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Ralph Johnson", "M", 40, True, True, True, False, [180, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Mary Kaleta", "F", 40, True, True, True, False, [183, 204, 284, 340], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Weronika Yakubov", "F", 29, True, True, True, False, [222], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        # Yeses
+        Athlete("Tom Peszek", "M", 40, 180, False, True, True, False, [385,230,292,315,243,183,158], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # not in 300 (b8+)
+        Athlete("Dmitriy Yakubov", "M", 35, 165, True, True, True, False, [243,222,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Weronika Yakubov", "F", 29, 135, True, True, True, False, [222], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Mabel Gomes", "F", 43, 145, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Shane Farmer", "M", 40, 185, True, False, False, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Doug Brayton", "M", 43, 175, True, True, True, False, [385,230, 243, 284,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Kathy Hughes", "F", 72, 150, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Susan Minkema", "F", 65, 155, False, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Donna Pili", "F", 54, 142, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Mary Kaleta", "F", 40, 140, True, True, True, False, [183, 204, 284, 340], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Christine Flowers", "F", 63, 148, True, True, True, False, [225], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Jan de Jong", "M", 64, 165, True, True, True, False, [], ['Friday', 'Saturday', 'Sunday']),        
+        Athlete("Will Bastien", "M", 40, 170, False, True, True, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Caitlin Turner", "F", 35, 125, False, False, False, True, [385,230, 243], ['Thursday', 'Friday', 'Saturday', 'Sunday']),        
+        Athlete("Aimee Wessel", "F", 56, 138, True, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Hunter Butler", "M", 70, 160, True, True, True, False, [180, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        
+        # Maybes
+        Athlete("Lisa Roth", "F", 66, 130, True, True, True, True, [385], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Elizabeth Hale", "F", 56, 160, True, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),        
+        Athlete("Tara Mallis", "F", 42, 160, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Julie Talbot", "F", 26, 160, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Ellen Minteer", "F", 58, 160, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Susan Gjerset", "F", 71, 138, True, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Mary Ewing", "F", 56, 138, True, True, True, False, [], ['Saturday', 'Sunday']),
+        Athlete("Ralph Johnson", "M", 77, 160, True, True, True, False, [180, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Seth Burns", "M", 58, 175, True, False, True, False, [355, 254, 266], ['Friday', 'Saturday', 'Sunday']),
+        Athlete("Curt Mazur", "M", 62, 175, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
 
-        Athlete("Mabel Gomes", "F", 43, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        # Athlete("Pattie Pinkerton", "F", 74, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Kathy Hughes", "F", 72, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Susan Minkema", "F", 65, False, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Donna Pili", "F", 54, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Christine Flowers", "F", 63, True, True, True, False, [225], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Jan de Jong", "M", 64, True, True, True, False, [], ['Friday', 'Saturday', 'Sunday']),
-        Athlete("Lisa Roth", "F", 66, True, True, True, True, [385], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Elizabeth Hale", "F", 56, True, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Hunter Butler", "M", 70, True, True, True, False, [180, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        ## Doubtfuls
+        Athlete("Sasha Foster", "F", 53, 138, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+
+        ## Unlisted maybes
+        Athlete("Glynn Bolitho", "M", 60, 190, True, True, True, False, [355, 254, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # guessing everything
 
         # Ringers
-        Athlete("Stephen Kasprzyk", "M", 43, False, True, False, False, [243, 300], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-
+        Athlete("Stephen Kasprzyk", "M", 43, 210, False, True, False, False, [243, 300], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Donna Peszek", "F", 69, 140, True, True, True, False, [158, 183], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Larry Peszek", "M", 71, 175, True, True, True, False, [292, 183], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
     ]
