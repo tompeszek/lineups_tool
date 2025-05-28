@@ -72,12 +72,12 @@ def create_sample_roster():
     # P - S - X - C
     return [
         # Yeses
-        Athlete("Tom Peszek", "M", 40, 180, False, True, True, False, [385,230,292,315,243,183,158], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # not in 300 (b8+)
-        Athlete("Dmitriy Yakubov", "M", 35, 165, True, True, True, False, [243,222,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Tom Peszek", "M", 40, 205, False, True, True, False, [385,230,292,315,243,183,158], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # not in 300 (b8+)
+        Athlete("Dmitriy Yakubov", "M", 35, 190, True, True, True, False, [243,222,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Weronika Yakubov", "F", 29, 135, True, True, True, False, [222], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Mabel Gomes", "F", 43, 145, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Shane Farmer", "M", 40, 185, True, False, False, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Doug Brayton", "M", 43, 175, True, True, True, False, [385,230, 243, 284,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Shane Farmer", "M", 40, 190, True, False, False, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        Athlete("Doug Brayton", "M", 43, 190, True, True, True, False, [385,230, 243, 284,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Kathy Hughes", "F", 72, 150, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Susan Minkema", "F", 65, 155, False, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Donna Pili", "F", 54, 142, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
