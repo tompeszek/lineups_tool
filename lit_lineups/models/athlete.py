@@ -85,7 +85,7 @@ def create_sample_roster():
         Athlete("Christine Flowers", "F", 63, 148, True, True, True, False, [225], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Jan de Jong", "M", 64, 165, True, True, True, False, [], ['Friday', 'Saturday', 'Sunday']),        
         Athlete("Will Bastien", "M", 40, 170, False, True, True, False, [385,230, 243,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
-        Athlete("Caitlin Turner", "F", 35, 125, False, False, False, True, [385,230, 243], ['Thursday', 'Friday', 'Saturday', 'Sunday']),        
+        Athlete("Caitlin Turner", "F", 35, 125, False, False, False, True, [230, 243], ['Thursday', 'Friday', 'Saturday', 'Sunday']),        
         Athlete("Aimee Wessel", "F", 56, 138, True, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Hunter Butler", "M", 70, 160, True, True, True, False, [180, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         

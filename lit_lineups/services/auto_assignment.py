@@ -67,7 +67,7 @@ class AutoAssignment:
         if not eligible_athletes:
             return {"success": False, "message": "No eligible athletes available"}
         
-        # Assign athletes - use a set to track assigned athletes to prevent duplicates
+        # Assign athletes with optimizations but ensure we always fill spots
         assigned_athletes = []
         coxswain = None
         
@@ -95,50 +95,66 @@ class AutoAssignment:
                     assigned_athletes.append(athlete)
             
             # Fill remaining spots with any gender if we're short
-            remaining_spots = athletes_to_assign - len(assigned_athletes)
             for athlete in eligible_athletes:
                 if athlete not in assigned_athletes and len(assigned_athletes) < athletes_to_assign:
                     assigned_athletes.append(athlete)
         else:
-            # For single-gender events or if age matters, try to optimize
+            # For single-gender events, try age optimization if applicable
             if self._check_age_eligibility(eligible_athletes, event_name, athletes_to_assign):
                 best_combo = self._find_best_age_combination(eligible_athletes, athletes_to_assign, event_name)
-                if best_combo:
-                    assigned_athletes = list(best_combo)  # Convert to list and ensure uniqueness
+                if best_combo and len(best_combo) == athletes_to_assign:
+                    assigned_athletes = list(best_combo)
                 else:
+                    # Age optimization failed, just take the first available athletes
                     assigned_athletes = eligible_athletes[:athletes_to_assign]
             else:
+                # No age restrictions or not enough athletes for age requirements
                 assigned_athletes = eligible_athletes[:athletes_to_assign]
         
+        # SAFETY CHECK: If we somehow don't have enough athletes, just take what we can
+        if len(assigned_athletes) < athletes_to_assign:
+            for athlete in eligible_athletes:
+                if athlete not in assigned_athletes and len(assigned_athletes) < athletes_to_assign:
+                    assigned_athletes.append(athlete)
+        
         # Remove any potential duplicates (shouldn't happen but safety check)
-        seen = set()
         unique_assigned = []
         for athlete in assigned_athletes:
-            if athlete not in seen:
-                seen.add(athlete)
+            if athlete not in unique_assigned:
                 unique_assigned.append(athlete)
         assigned_athletes = unique_assigned
         
         # Assign coxswain if needed - coxswain can be any gender/age
         if requirements['has_cox']:
-            # Find ALL athletes who can cox and are available on this day (not just from interested_athletes)
-            all_available_coxes = []
-            for athlete in st.session_state.athletes:
+            # First priority: interested athletes who can cox (from preferred events)
+            interested_coxes = []
+            for athlete in interested_athletes:
                 if (athlete.can_cox and 
                     athlete.is_available_on_day(event_day) and 
-                    athlete not in assigned_athletes):  # Make sure cox is not already assigned as rower
-                    all_available_coxes.append(athlete)
+                    athlete not in assigned_athletes):
+                    interested_coxes.append(athlete)
             
-            if all_available_coxes:
-                coxswain = all_available_coxes[0]
+            if interested_coxes:
+                coxswain = interested_coxes[0]
             else:
-                # If no available cox, try to swap someone from the crew
-                crew_coxes = [a for a in assigned_athletes if a.can_cox]
-                if crew_coxes:
-                    # Move a cox from crew to coxswain position
-                    cox_to_move = crew_coxes[0]
-                    assigned_athletes.remove(cox_to_move)
-                    coxswain = cox_to_move
+                # Second priority: ANY available coxes from the whole roster
+                all_available_coxes = []
+                for athlete in st.session_state.athletes:
+                    if (athlete.can_cox and 
+                        athlete.is_available_on_day(event_day) and 
+                        athlete not in assigned_athletes):
+                        all_available_coxes.append(athlete)
+                
+                if all_available_coxes:
+                    coxswain = all_available_coxes[0]
+                else:
+                    # Last resort: try to swap someone from the crew
+                    crew_coxes = [a for a in assigned_athletes if a.can_cox]
+                    if crew_coxes:
+                        # Move a cox from crew to coxswain position
+                        cox_to_move = crew_coxes[0]
+                        assigned_athletes.remove(cox_to_move)
+                        coxswain = cox_to_move
         
         # Save the lineup with proper structure (array with None placeholders)
         final_lineup = {'athletes': [None] * requirements['num_rowers'], 'coxswain': None}
@@ -159,21 +175,25 @@ class AutoAssignment:
         return {"success": True, "message": f"Assigned {rower_count} rowers{cox_text}{partial_text}"}
     
     def _athlete_fits_basic_requirements(self, athlete, event_name):
-        """Check basic athlete eligibility for event"""
+        """Check basic athlete eligibility for event (for rowers only - coxswains checked separately)"""
         from models.boat import BoatType
         
-        # Gender check
+        # Gender check for rowers (coxswains can be any gender in most events)
         if 'Men\'s' in event_name and athlete.gender != 'M':
             return False
         if 'Women\'s' in event_name and athlete.gender != 'F':
             return False
         
-        # Boat type compatibility
-        boat = BoatType(event_name.split()[-1])
-        if boat.is_sculling and not athlete.can_scull:
-            return False
-        if boat.is_sweep and not (athlete.can_port or athlete.can_starboard):
-            return False
+        # Boat type compatibility - but be lenient
+        try:
+            boat = BoatType(event_name.split()[-1])
+            if boat.is_sculling and not athlete.can_scull:
+                return False
+            if boat.is_sweep and not (athlete.can_port or athlete.can_starboard):
+                return False
+        except:
+            # If we can't parse boat type, just allow it
+            pass
             
         return True
     

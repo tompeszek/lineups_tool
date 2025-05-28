@@ -174,6 +174,7 @@ def _get_athlete_events(athlete):
                 event_time = get_event_time(event_num, st.session_state.event_spacing_minutes)
                 meet_time = event_time - timedelta(minutes=st.session_state.meet_minutes_before)
                 launch_time = event_time - timedelta(minutes=st.session_state.launch_minutes_before)
+                land_time = event_time + timedelta(minutes=st.session_state.land_minutes_after)
                 
                 # Get boat assignment
                 boat_name = "Not assigned"
@@ -188,6 +189,7 @@ def _get_athlete_events(athlete):
                     'Meet Time': meet_time.strftime("%H:%M"),
                     'Launch Time': launch_time.strftime("%H:%M"),
                     'Race Time': event_time.strftime("%H:%M"),
+                    'Land Time': land_time.strftime("%H:%M"),
                     'Event': f"{event_num}: {event_name}",
                     'Role': role,
                     'Boat': boat_name,
