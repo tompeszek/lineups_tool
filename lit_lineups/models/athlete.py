@@ -107,7 +107,7 @@ def create_sample_roster():
         Athlete("Glynn Bolitho", "M", 60, 190, True, True, True, False, [355, 254, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # guessing everything
 
         # Out
-        Athlete("Lisa Roth", "F", 66, 130, True, True, True, True, [385], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
+        #Athlete("Lisa Roth", "F", 66, 130, True, True, True, True, [385], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
 
         # Ringers
         Athlete("Stephen Kasprzyk", "M", 43, 210, False, True, False, False, [243, 300], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
