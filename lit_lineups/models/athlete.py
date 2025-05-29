@@ -72,7 +72,7 @@ def create_sample_roster():
     # P - S - X - C
     return [
         # Yeses
-        Athlete("Tom Peszek", "M", 40, 205, False, True, True, False, [385,230,292,315,243,183,158], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # not in 300 (b8+)
+        Athlete("Tom Peszek", "M", 40, 205, False, True, True, False, [385,230,292,315,243,183,158,160], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # not in 300 (b8+)
         Athlete("Dmitriy Yakubov", "M", 35, 190, True, True, True, False, [243,222,300, 362], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Weronika Yakubov", "F", 29, 135, True, True, True, False, [222], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Mabel Gomes", "F", 43, 145, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
@@ -90,7 +90,6 @@ def create_sample_roster():
         Athlete("Hunter Butler", "M", 70, 160, True, True, True, False, [180, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         
         # Maybes
-        Athlete("Lisa Roth", "F", 66, 130, True, True, True, True, [385], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Elizabeth Hale", "F", 56, 160, True, False, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),        
         Athlete("Tara Mallis", "F", 42, 160, True, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
         Athlete("Julie Talbot", "F", 26, 160, False, True, True, False, [], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
@@ -106,6 +105,9 @@ def create_sample_roster():
 
         ## Unlisted maybes
         Athlete("Glynn Bolitho", "M", 60, 190, True, True, True, False, [355, 254, 266], ['Thursday', 'Friday', 'Saturday', 'Sunday']), # guessing everything
+
+        # Out
+        Athlete("Lisa Roth", "F", 66, 130, True, True, True, True, [385], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
 
         # Ringers
         Athlete("Stephen Kasprzyk", "M", 43, 210, False, True, False, False, [243, 300], ['Thursday', 'Friday', 'Saturday', 'Sunday']),
