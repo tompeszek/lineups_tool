@@ -152,14 +152,25 @@ def _render_boat_assignment_for_event(event_num):
             current_boat = st.session_state.boat_assignments.get(event_num)
             if current_boat:
                 weight_status = current_boat.weight_check(avg_weight)
-                if weight_status == "good":
-                    st.success(f"✅ Currently assigned: **{current_boat.name}**")
-                elif weight_status == "warning":
-                    st.warning(f"⚠️ Currently assigned: **{current_boat.name}** (weight outside ideal range)")
-                else:
-                    st.error(f"❌ Currently assigned: **{current_boat.name}** (weight significantly outside range)")
                 
-                st.write(f"Boat range: {current_boat.min_weight}-{current_boat.max_weight} lbs")
+                # Create boat details string
+                boat_details = f"{current_boat.name}"
+                if current_boat.manufacturer:
+                    boat_details += f" ({current_boat.manufacturer}"
+                    if current_boat.year:
+                        boat_details += f" {current_boat.year}"
+                    boat_details += ")"
+                elif current_boat.year:
+                    boat_details += f" ({current_boat.year})"
+                
+                if weight_status == "good":
+                    st.success(f"✅ Currently assigned: **{boat_details}**")
+                elif weight_status == "warning":
+                    st.warning(f"⚠️ Currently assigned: **{boat_details}** (weight outside ideal range)")
+                else:
+                    st.error(f"❌ Currently assigned: **{boat_details}** (weight significantly outside range)")
+                
+                st.write(f"Weight range: {current_boat.min_weight}-{current_boat.max_weight} lbs | Type: {current_boat.boat_type}")
             else:
                 st.info("No boat assigned")
             
@@ -179,7 +190,22 @@ def _render_boat_assignment_for_event(event_num):
                     else:
                         status_icon = "❌"
                     
-                    if st.button(f"{status_icon} {boat.name} ({boat.min_weight}-{boat.max_weight} lbs)", 
+                    # Create boat button text with manufacturer and year
+                    boat_text = f"{boat.name}"
+                    if boat.manufacturer or boat.year:
+                        boat_text += " ("
+                        if boat.manufacturer:
+                            boat_text += boat.manufacturer
+                        if boat.year:
+                            if boat.manufacturer:
+                                boat_text += f" {boat.year}"
+                            else:
+                                boat_text += str(boat.year)
+                        boat_text += ")"
+                    
+                    boat_text += f" | {boat.min_weight}-{boat.max_weight} lbs"
+                    
+                    if st.button(f"{status_icon} {boat_text}", 
                                key=f"assign_{event_num}_{boat.name}"):
                         st.session_state.boat_assignments[event_num] = boat
                         st.rerun()
