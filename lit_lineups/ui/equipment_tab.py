@@ -6,7 +6,7 @@ import pandas as pd
 from datetime import timedelta
 from models.boat import Boat, create_sample_boats
 from models.constants import EVENTS_DATA
-from utils.event_utils import get_event_time, parse_event_requirements
+from utils.event_utils import get_event_time, get_event_time_both_sessions, parse_event_requirements
 
 def render_equipment_tab():
     """Render the equipment management tab"""
@@ -84,7 +84,7 @@ def render_equipment_tab():
     
     st.subheader("Boat Assignments")
     
-    # Show events that need boats
+    # Show events that need boats (ordered by event number)
     events_needing_boats = []
     for event_num, lineup in st.session_state.lineups.items():
         if lineup.get('athletes') and any(a is not None for a in lineup['athletes']):
@@ -94,8 +94,8 @@ def render_equipment_tab():
         st.info("No lineups with athletes to assign boats to.")
         return
     
-    # Show boat assignment for each event
-    for event_num in events_needing_boats:
+    # Show boat assignment for each event (ordered by event number)
+    for event_num in sorted(events_needing_boats):
         _render_boat_assignment_for_event(event_num)
     
     # Show boat conflicts
@@ -163,10 +163,14 @@ def _render_boat_assignment_for_event(event_num):
             else:
                 st.info("No boat assigned")
             
-            # Show boat options
+            # Show boat options (excluding currently assigned boat)
             if available_boats:
                 st.write("**Available compatible boats:**")
                 for boat in available_boats:
+                    # Skip the currently assigned boat to avoid showing it as a button
+                    if current_boat and boat == current_boat:
+                        continue
+                        
                     weight_status = boat.weight_check(avg_weight)
                     if weight_status == "good":
                         status_icon = "✅"
@@ -180,21 +184,72 @@ def _render_boat_assignment_for_event(event_num):
                         st.session_state.boat_assignments[event_num] = boat
                         st.rerun()
             else:
-                st.warning("No compatible boats available (may be assigned to conflicting events)")
+                if current_boat:
+                    st.info("Current boat is the only compatible option available")
+                else:
+                    st.warning("No compatible boats available (may be assigned to conflicting events)")
         
         with col2:
-            # Show event timing
-            event_time = get_event_time(event_num, st.session_state.event_spacing_minutes)
-            launch_time = event_time - timedelta(minutes=st.session_state.launch_minutes_before)
-            land_time = event_time + timedelta(minutes=st.session_state.land_minutes_after)
+            # Show lineup details in a table
+            st.write("**Lineup:**")
+            lineup_data = []
+            for i, athlete in enumerate(athletes, 1):
+                lineup_data.append({
+                    'Position': f"{i}",
+                    'Name': athlete.name,
+                    'Gender': athlete.gender[0],
+                    'Weight': f"{athlete.weight}lbs"
+                })
             
-            st.write(f"**{event_day}**")
-            st.write(f"Launch: {launch_time.strftime('%H:%M')}")
-            st.write(f"Race: {event_time.strftime('%H:%M')}")
-            st.write(f"Land: {land_time.strftime('%H:%M')}")
+            coxswain = lineup.get('coxswain')
+            if coxswain:
+                lineup_data.append({
+                    'Position': 'Cox',
+                    'Name': coxswain.name,
+                    'Gender': coxswain.gender[0],
+                    'Weight': f"{coxswain.weight}lbs"
+                })
+            
+            lineup_df = pd.DataFrame(lineup_data)
+            st.dataframe(lineup_df, use_container_width=True, hide_index=True)
+            
+            # Show event timing for both sessions in tables
+            st.write(f"**{event_day} Schedule:**")
+            
+            # Get times for both sessions
+            morning_time, afternoon_time = get_event_time_both_sessions(event_num, st.session_state.event_spacing_minutes)
+            
+            # Create schedule table
+            schedule_data = []
+            
+            # Morning session (Heat)
+            morning_launch = morning_time - timedelta(minutes=st.session_state.launch_minutes_before)
+            morning_land = morning_time + timedelta(minutes=st.session_state.land_minutes_after)
+            
+            schedule_data.append({
+                'Session': '🌅 Heat',
+                'Launch': morning_launch.strftime('%H:%M'),
+                'Race': morning_time.strftime('%H:%M'),
+                'Land': morning_land.strftime('%H:%M')
+            })
+            
+            # Afternoon session (Final)
+            afternoon_launch = afternoon_time - timedelta(minutes=st.session_state.launch_minutes_before)
+            afternoon_land = afternoon_time + timedelta(minutes=st.session_state.land_minutes_after)
+            
+            schedule_data.append({
+                'Session': '🌇 Final',
+                'Launch': afternoon_launch.strftime('%H:%M'),
+                'Race': afternoon_time.strftime('%H:%M'),
+                'Land': afternoon_land.strftime('%H:%M')
+            })
+            
+            schedule_df = pd.DataFrame(schedule_data)
+            st.dataframe(schedule_df, use_container_width=True, hide_index=True)
             
             # Unassign button
             if current_boat:
+                st.write("")  # Add some spacing
                 if st.button("Unassign Boat", key=f"unassign_{event_num}"):
                     del st.session_state.boat_assignments[event_num]
                     st.rerun()
@@ -260,7 +315,7 @@ def _show_boat_conflicts():
             st.markdown(f"### {boat_name}")
             st.write(f"*{boat_details}*")
             
-            # List events as bullets with event names
+            # List events as bullets with event names (ordered by event number)
             for event_num in sorted(events):
                 # Find event name and day
                 event_name = "Unknown Event"
