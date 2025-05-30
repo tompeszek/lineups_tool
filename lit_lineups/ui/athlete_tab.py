@@ -5,7 +5,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from models.constants import EVENTS_DATA
-from utils.event_utils import get_event_time, parse_event_requirements
+from utils.event_utils import get_event_time_both_sessions, parse_event_requirements, get_event_entries_2024, will_event_have_heat
 
 def render_athlete_tab():
     """Render the individual athlete view tab"""
@@ -25,7 +25,7 @@ def render_athlete_tab():
     
     selected_athlete_index = st.selectbox("Select Athlete", 
                                          options=sorted_indices,
-                                         format_func=lambda x: f"{st.session_state.athletes[x].name} ({st.session_state.athletes[x].gender}, {st.session_state.athletes[x].age}, {st.session_state.athletes[x].weight}lbs)")
+                                         format_func=lambda x: f"{st.session_state.athletes[x].name}")# ({st.session_state.athletes[x].gender}, {st.session_state.athletes[x].age}, {st.session_state.athletes[x].weight}lbs)")
     
     if selected_athlete_index is not None:
         selected_athlete = st.session_state.athletes[selected_athlete_index]
@@ -35,6 +35,16 @@ def render_athlete_tab():
         athlete_events = _get_athlete_events(selected_athlete)
         
         if athlete_events:
+            # Add 2024 entries data to each event
+            for event in athlete_events:
+                # Extract event number from the event string
+                event_num_str = event['Event'].split(':')[0]
+                event_num = int(event_num_str)
+                
+                # Get 2024 entries data
+                entries_2024 = get_event_entries_2024(event_num)
+                event['Entries 2024'] = str(entries_2024) if entries_2024 is not None else "N/A"
+            
             # Group events by day
             events_by_day = {'Thursday': [], 'Friday': [], 'Saturday': [], 'Sunday': []}
             for event in athlete_events:
@@ -77,13 +87,20 @@ def render_athlete_tab():
                             if 0 < time_diff_minutes < 60:
                                 has_quick_turnaround = True
                         
-                        # Create display data without the sorting helper
+                        # Create display data - KEEP the Entries 2024 column
                         display_event = {k: v for k, v in event.items() if k != 'event_time_obj'}
                         styled_events.append((display_event, has_quick_turnaround))
                     
                     # Create DataFrame and apply styling
                     df_data = [event for event, _ in styled_events]
                     df = pd.DataFrame(df_data)
+                    
+                    # Reorder columns to make sure Entries 2024 is visible
+                    desired_columns = ['Meet Time', 'Launch Time', 'Race Time', 'Land Time', 'Event', 'Entries 2024', 'Role', 'Boat', 'Crew']
+                    # Only include columns that actually exist in the data
+                    available_columns = [col for col in desired_columns if col in df.columns]
+                    if available_columns:
+                        df = df[available_columns]
                     
                     # Apply styling for quick turnarounds
                     def highlight_quick_turnaround(row):
@@ -124,7 +141,7 @@ def render_athlete_tab():
             _show_preferred_events(selected_athlete)
 
 def _get_athlete_events(athlete):
-    """Get all events for a specific athlete"""
+    """Get all events for a specific athlete (both morning and afternoon sessions)"""
     athlete_events = []
     
     # Find all events this athlete is in
@@ -171,10 +188,11 @@ def _get_athlete_events(athlete):
                     break
             
             if event_name and event_day:
-                event_time = get_event_time(event_num, st.session_state.event_spacing_minutes)
-                meet_time = event_time - timedelta(minutes=st.session_state.meet_minutes_before)
-                launch_time = event_time - timedelta(minutes=st.session_state.launch_minutes_before)
-                land_time = event_time + timedelta(minutes=st.session_state.land_minutes_after)
+                # Get times for both sessions
+                morning_time, afternoon_time = get_event_time_both_sessions(event_num, st.session_state.event_spacing_minutes)
+                
+                # Get crew members (other people in the boat)
+                crew_members = _get_crew_members(event_num, athlete)
                 
                 # Get boat assignment
                 boat_name = "Not assigned"
@@ -182,19 +200,38 @@ def _get_athlete_events(athlete):
                     boat = st.session_state.boat_assignments[event_num]
                     boat_name = boat.name
                 
-                # Get crew members (other people in the boat)
-                crew_members = _get_crew_members(event_num, athlete)
+                # Add morning session (Heat)
+                morning_meet = morning_time - timedelta(minutes=st.session_state.meet_minutes_before)
+                morning_launch = morning_time - timedelta(minutes=st.session_state.launch_minutes_before)
+                morning_land = morning_time + timedelta(minutes=st.session_state.land_minutes_after)
                 
                 athlete_events.append({
-                    'Meet Time': meet_time.strftime("%H:%M"),
-                    'Launch Time': launch_time.strftime("%H:%M"),
-                    'Race Time': event_time.strftime("%H:%M"),
-                    'Land Time': land_time.strftime("%H:%M"),
-                    'Event': f"{event_num}: {event_name}",
+                    'Meet Time': morning_meet.strftime("%H:%M"),
+                    'Launch Time': morning_launch.strftime("%H:%M"),
+                    'Race Time': morning_time.strftime("%H:%M"),
+                    'Land Time': morning_land.strftime("%H:%M"),
+                    'Event': f"{event_num}: {event_name} (Heat)",
                     'Role': role,
                     'Boat': boat_name,
                     'Crew': crew_members,
-                    'event_time_obj': event_time  # For sorting and quick turnaround detection
+                    'event_time_obj': morning_time  # For sorting and quick turnaround detection
+                })
+                
+                # Add afternoon session (Final)
+                afternoon_meet = afternoon_time - timedelta(minutes=st.session_state.meet_minutes_before)
+                afternoon_launch = afternoon_time - timedelta(minutes=st.session_state.launch_minutes_before)
+                afternoon_land = afternoon_time + timedelta(minutes=st.session_state.land_minutes_after)
+                
+                athlete_events.append({
+                    'Meet Time': afternoon_meet.strftime("%H:%M"),
+                    'Launch Time': afternoon_launch.strftime("%H:%M"),
+                    'Race Time': afternoon_time.strftime("%H:%M"),
+                    'Land Time': afternoon_land.strftime("%H:%M"),
+                    'Event': f"{event_num}: {event_name} (Final)",
+                    'Role': role,
+                    'Boat': boat_name,
+                    'Crew': crew_members,
+                    'event_time_obj': afternoon_time  # For sorting and quick turnaround detection
                 })
     
     return athlete_events

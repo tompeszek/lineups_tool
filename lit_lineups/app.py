@@ -45,9 +45,23 @@ st.session_state.regatta_start_date = st.sidebar.date_input(
     value=st.session_state.regatta_start_date
 )
 
-st.session_state.regatta_start_time = st.sidebar.time_input(
-    "Start Time",
-    value=st.session_state.regatta_start_time
+st.session_state.morning_start_time = st.sidebar.time_input(
+    "Morning Start Time (Heats)",
+    value=st.session_state.morning_start_time
+)
+
+st.session_state.afternoon_start_time = st.sidebar.time_input(
+    "Afternoon Start Time (Finals)",
+    value=st.session_state.afternoon_start_time
+)
+
+st.sidebar.subheader("Race Configuration")
+st.session_state.boats_per_race = st.sidebar.number_input(
+    "Boats per Race", 
+    min_value=4, 
+    max_value=12, 
+    value=st.session_state.boats_per_race,
+    help="Maximum number of boats that can race at once"
 )
 
 st.sidebar.subheader("Athlete Timing")

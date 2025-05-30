@@ -6,24 +6,57 @@ import streamlit as st
 from datetime import datetime, time
 from models.athlete import Athlete
 from models.boat import Boat
+import os
+from pathlib import Path
 
 class DataManager:
     """Manager for saving and loading all application data"""
     
-    def save_data(self):
+    def __init__(self):
+        # Define preset datasets directory
+        self.presets_dir = Path(__file__).parent.parent / "presets"
+        self.presets_dir.mkdir(exist_ok=True)
+    
+    def get_available_presets(self):
+        """Get list of available preset files"""
+        presets = []
+        for file_path in self.presets_dir.glob("*.json"):
+            try:
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                presets.append({
+                    'filename': file_path.name,
+                    'filepath': file_path,
+                    'name': data.get('preset_name', file_path.stem),
+                    'description': data.get('preset_description', 'No description'),
+                    'saved_at': data.get('saved_at', 'Unknown'),
+                    'athletes_count': len(data.get('athletes', [])),
+                    'lineups_count': len(data.get('lineups', {})),
+                    'boats_count': len(data.get('boats', []))
+                })
+            except Exception as e:
+                st.warning(f"Could not read preset {file_path.name}: {e}")
+        
+        return sorted(presets, key=lambda x: x['name'])
+    
+    def save_data(self, preset_name=None, preset_description=None):
         """Save all data to JSON format"""
         data = {
-            "version": "1.1",  # Updated version for equipment support
+            "version": "1.1",
             "saved_at": datetime.now().isoformat(),
+            "preset_name": preset_name,
+            "preset_description": preset_description,
             "parameters": {
                 "event_spacing_minutes": st.session_state.event_spacing_minutes,
                 "min_gap_minutes": st.session_state.min_gap_minutes,
                 "regatta_start_date": st.session_state.regatta_start_date.isoformat(),
-                "regatta_start_time": st.session_state.regatta_start_time.isoformat(),
+                "morning_start_time": st.session_state.morning_start_time.isoformat(),
+                "afternoon_start_time": st.session_state.afternoon_start_time.isoformat(),
                 "exclude_lightweight": st.session_state.exclude_lightweight,
                 "meet_minutes_before": st.session_state.meet_minutes_before,
                 "launch_minutes_before": st.session_state.launch_minutes_before,
-                "land_minutes_after": getattr(st.session_state, 'land_minutes_after', 15)
+                "land_minutes_after": getattr(st.session_state, 'land_minutes_after', 15),
+                "boats_per_race": getattr(st.session_state, 'boats_per_race', 8)
             },
             "athletes": self._serialize_athletes(),
             "lineups": self._serialize_lineups(),
@@ -33,7 +66,44 @@ class DataManager:
         }
         
         json_str = json.dumps(data, indent=2)
-        return json_str
+        return json_str, data
+    
+    def save_preset(self, preset_name, preset_description=""):
+        """Save current state as a preset"""
+        try:
+            json_str, data = self.save_data(preset_name, preset_description)
+            
+            # Create safe filename
+            safe_filename = "".join(c for c in preset_name if c.isalnum() or c in (' ', '_', '-')).strip()
+            safe_filename = safe_filename.replace(' ', '_')
+            filename = f"{safe_filename}.json"
+            
+            preset_path = self.presets_dir / filename
+            
+            with open(preset_path, 'w') as f:
+                f.write(json_str)
+            
+            return {"success": True, "message": f"Preset '{preset_name}' saved successfully!", "filepath": preset_path}
+            
+        except Exception as e:
+            return {"success": False, "message": f"Error saving preset: {str(e)}"}
+    
+    def load_preset(self, preset_filepath):
+        """Load a preset by filepath"""
+        try:
+            with open(preset_filepath, 'r') as f:
+                json_str = f.read()
+            return self.load_data(json_str)
+        except Exception as e:
+            return {"success": False, "message": f"Error loading preset: {str(e)}"}
+    
+    def delete_preset(self, preset_filepath):
+        """Delete a preset file"""
+        try:
+            preset_filepath.unlink()
+            return {"success": True, "message": "Preset deleted successfully!"}
+        except Exception as e:
+            return {"success": False, "message": f"Error deleting preset: {str(e)}"}
     
     def load_data(self, json_str):
         """Load data from JSON string"""
@@ -53,19 +123,43 @@ class DataManager:
             st.session_state.meet_minutes_before = params.get("meet_minutes_before", 40)
             st.session_state.launch_minutes_before = params.get("launch_minutes_before", 30)
             st.session_state.land_minutes_after = params.get("land_minutes_after", 15)
+            st.session_state.boats_per_race = params.get("boats_per_race", 8)
             
             if "regatta_start_date" in params:
                 st.session_state.regatta_start_date = datetime.fromisoformat(params["regatta_start_date"]).date()
-            if "regatta_start_time" in params:
-                time_str = params["regatta_start_time"]
+            
+            # Handle both old and new time formats
+            if "morning_start_time" in params:
+                time_str = params["morning_start_time"]
                 if 'T' in time_str:
-                    st.session_state.regatta_start_time = datetime.fromisoformat(time_str).time()
+                    st.session_state.morning_start_time = datetime.fromisoformat(time_str).time()
                 else:
                     time_parts = time_str.split(':')
                     hour = int(time_parts[0])
                     minute = int(time_parts[1])
                     second = int(time_parts[2]) if len(time_parts) > 2 else 0
-                    st.session_state.regatta_start_time = time(hour, minute, second)
+                    st.session_state.morning_start_time = time(hour, minute, second)
+            elif "regatta_start_time" in params:  # Backwards compatibility
+                time_str = params["regatta_start_time"]
+                if 'T' in time_str:
+                    st.session_state.morning_start_time = datetime.fromisoformat(time_str).time()
+                else:
+                    time_parts = time_str.split(':')
+                    hour = int(time_parts[0])
+                    minute = int(time_parts[1])
+                    second = int(time_parts[2]) if len(time_parts) > 2 else 0
+                    st.session_state.morning_start_time = time(hour, minute, second)
+            
+            if "afternoon_start_time" in params:
+                time_str = params["afternoon_start_time"]
+                if 'T' in time_str:
+                    st.session_state.afternoon_start_time = datetime.fromisoformat(time_str).time()
+                else:
+                    time_parts = time_str.split(':')
+                    hour = int(time_parts[0])
+                    minute = int(time_parts[1])
+                    second = int(time_parts[2]) if len(time_parts) > 2 else 0
+                    st.session_state.afternoon_start_time = time(hour, minute, second)
             
             # Load athletes - FORCE new list
             athletes_data = data.get("athletes", [])
@@ -75,7 +169,7 @@ class DataManager:
                     name=athlete_data["name"],
                     gender=athlete_data["gender"],
                     age=athlete_data["age"],
-                    weight=athlete_data.get("weight", 160),  # Default weight if not present
+                    weight=athlete_data.get("weight", 160),
                     can_port=athlete_data.get("can_port", True),
                     can_starboard=athlete_data.get("can_starboard", True),
                     can_scull=athlete_data.get("can_scull", True),
@@ -172,9 +266,13 @@ class DataManager:
             
             print(f"Set {len(st.session_state.selected_events)} selected events")
             
+            preset_info = ""
+            if data.get("preset_name"):
+                preset_info = f" from preset '{data['preset_name']}'"
+            
             return {
                 "success": True, 
-                "message": f"Successfully loaded {len(st.session_state.athletes)} athletes, {len(st.session_state.lineups)} lineups, {len(st.session_state.boats)} boats, and {len(st.session_state.boat_assignments)} boat assignments",
+                "message": f"Successfully loaded{preset_info}: {len(st.session_state.athletes)} athletes, {len(st.session_state.lineups)} lineups, {len(st.session_state.boats)} boats, and {len(st.session_state.boat_assignments)} boat assignments",
                 "timestamp": data.get('saved_at', 'unknown time')
             }
             
