@@ -1,12 +1,12 @@
 {
   "version": "1.1",
-  "saved_at": "2025-05-30T14:41:53.870198",
-  "preset_name": "RowFest 2025 version 2",
-  "preset_description": "",
+  "saved_at": "2025-05-30T15:16:39.040255",
+  "preset_name": "RowFest 2025 version 3",
+  "preset_description": "Adding Caitlin's latest changes",
   "parameters": {
     "event_spacing_minutes": 4,
     "min_gap_minutes": 30,
-    "regatta_start_date": "2024-07-17",
+    "regatta_start_date": "2024-07-18",
     "morning_start_time": "08:00:00",
     "afternoon_start_time": "13:00:00",
     "exclude_lightweight": true,
@@ -32,8 +32,7 @@
         315,
         243,
         183,
-        158,
-        160
+        158
       ],
       "available_days": [
         "Thursday",
@@ -185,7 +184,7 @@
       "name": "Donna Pili",
       "gender": "F",
       "age": 54,
-      "weight": 142,
+      "weight": 180,
       "can_port": true,
       "can_starboard": true,
       "can_scull": true,
@@ -202,7 +201,7 @@
       "name": "Mary Kaleta",
       "gender": "F",
       "age": 40,
-      "weight": 140,
+      "weight": 150,
       "can_port": true,
       "can_starboard": true,
       "can_scull": true,
@@ -211,7 +210,10 @@
         183,
         204,
         284,
-        340
+        340,
+        273,
+        301,
+        229
       ],
       "available_days": [
         "Thursday",
@@ -259,7 +261,7 @@
       "name": "Will Bastien",
       "gender": "M",
       "age": 40,
-      "weight": 170,
+      "weight": 180,
       "can_port": false,
       "can_starboard": true,
       "can_scull": true,
@@ -282,14 +284,16 @@
       "name": "Caitlin Turner",
       "gender": "F",
       "age": 35,
-      "weight": 125,
+      "weight": 127,
       "can_port": false,
       "can_starboard": false,
-      "can_scull": false,
+      "can_scull": true,
       "can_cox": true,
       "preferred_events": [
         230,
-        243
+        243,
+        273,
+        300
       ],
       "available_days": [
         "Thursday",
@@ -301,13 +305,17 @@
     {
       "name": "Aimee Wessel",
       "gender": "F",
-      "age": 56,
-      "weight": 138,
+      "age": 41,
+      "weight": 160,
       "can_port": true,
       "can_starboard": false,
       "can_scull": true,
       "can_cox": false,
-      "preferred_events": [],
+      "preferred_events": [
+        394,
+        229,
+        169
+      ],
       "available_days": [
         "Thursday",
         "Friday",
@@ -373,7 +381,7 @@
       "name": "Julie Talbot",
       "gender": "F",
       "age": 26,
-      "weight": 160,
+      "weight": 150,
       "can_port": false,
       "can_starboard": true,
       "can_scull": true,
@@ -496,12 +504,14 @@
       "name": "Sasha Foster",
       "gender": "F",
       "age": 53,
-      "weight": 138,
+      "weight": 165,
       "can_port": false,
       "can_starboard": true,
       "can_scull": true,
       "can_cox": false,
-      "preferred_events": [],
+      "preferred_events": [
+        394
+      ],
       "available_days": [
         "Thursday",
         "Friday",
@@ -534,7 +544,7 @@
       "name": "Stephen Kasprzyk",
       "gender": "M",
       "age": 43,
-      "weight": 210,
+      "weight": 225,
       "can_port": false,
       "can_starboard": true,
       "can_scull": false,
@@ -589,6 +599,63 @@
         "Saturday",
         "Sunday"
       ]
+    },
+    {
+      "name": "George Shuster ",
+      "gender": "M",
+      "age": 77,
+      "weight": 220,
+      "can_port": true,
+      "can_starboard": true,
+      "can_scull": true,
+      "can_cox": false,
+      "preferred_events": [
+        323
+      ],
+      "available_days": [
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    {
+      "name": "Neal Shuster ",
+      "gender": "M",
+      "age": 78,
+      "weight": 220,
+      "can_port": true,
+      "can_starboard": false,
+      "can_scull": false,
+      "can_cox": false,
+      "preferred_events": [
+        323
+      ],
+      "available_days": [
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
+    },
+    {
+      "name": "Pattie Pinkerton",
+      "gender": "F",
+      "age": 74,
+      "weight": 155,
+      "can_port": true,
+      "can_starboard": true,
+      "can_scull": true,
+      "can_cox": false,
+      "preferred_events": [
+        265
+      ],
+      "available_days": [
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ]
     }
   ],
   "lineups": {
@@ -610,8 +677,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -671,7 +737,7 @@
           "name": "Will Bastien",
           "gender": "M",
           "age": 40,
-          "weight": 170,
+          "weight": 180,
           "can_port": false,
           "can_starboard": true,
           "can_scull": true,
@@ -691,26 +757,7 @@
           ]
         }
       ],
-      "coxswain": {
-        "name": "Caitlin Turner",
-        "gender": "F",
-        "age": 35,
-        "weight": 125,
-        "can_port": false,
-        "can_starboard": false,
-        "can_scull": false,
-        "can_cox": true,
-        "preferred_events": [
-          230,
-          243
-        ],
-        "available_days": [
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ]
-      }
+      "coxswain": null
     },
     "230": {
       "athletes": [
@@ -730,8 +777,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -791,7 +837,7 @@
           "name": "Will Bastien",
           "gender": "M",
           "age": 40,
-          "weight": 170,
+          "weight": 180,
           "can_port": false,
           "can_starboard": true,
           "can_scull": true,
@@ -815,14 +861,16 @@
         "name": "Caitlin Turner",
         "gender": "F",
         "age": 35,
-        "weight": 125,
+        "weight": 127,
         "can_port": false,
         "can_starboard": false,
-        "can_scull": false,
+        "can_scull": true,
         "can_cox": true,
         "preferred_events": [
           230,
-          243
+          243,
+          273,
+          300
         ],
         "available_days": [
           "Thursday",
@@ -850,8 +898,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -901,8 +948,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -932,8 +978,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -1015,7 +1060,7 @@
           "name": "Will Bastien",
           "gender": "M",
           "age": 40,
-          "weight": 170,
+          "weight": 180,
           "can_port": false,
           "can_starboard": true,
           "can_scull": true,
@@ -1038,7 +1083,7 @@
           "name": "Stephen Kasprzyk",
           "gender": "M",
           "age": 43,
-          "weight": 210,
+          "weight": 225,
           "can_port": false,
           "can_starboard": true,
           "can_scull": false,
@@ -1061,14 +1106,16 @@
         "name": "Caitlin Turner",
         "gender": "F",
         "age": 35,
-        "weight": 125,
+        "weight": 127,
         "can_port": false,
         "can_starboard": false,
-        "can_scull": false,
+        "can_scull": true,
         "can_cox": true,
         "preferred_events": [
           230,
-          243
+          243,
+          273,
+          300
         ],
         "available_days": [
           "Thursday",
@@ -1096,8 +1143,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -1130,7 +1176,7 @@
           "name": "Mary Kaleta",
           "gender": "F",
           "age": 40,
-          "weight": 140,
+          "weight": 150,
           "can_port": true,
           "can_starboard": true,
           "can_scull": true,
@@ -1139,7 +1185,10 @@
             183,
             204,
             284,
-            340
+            340,
+            273,
+            301,
+            229
           ],
           "available_days": [
             "Thursday",
@@ -1189,8 +1238,7 @@
             315,
             243,
             183,
-            158,
-            160
+            158
           ],
           "available_days": [
             "Thursday",
@@ -1211,37 +1259,6 @@
           "preferred_events": [
             158,
             183
-          ],
-          "available_days": [
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday"
-          ]
-        }
-      ],
-      "coxswain": null
-    },
-    "160": {
-      "athletes": [
-        {
-          "name": "Tom Peszek",
-          "gender": "M",
-          "age": 40,
-          "weight": 205,
-          "can_port": false,
-          "can_starboard": true,
-          "can_scull": true,
-          "can_cox": false,
-          "preferred_events": [
-            385,
-            230,
-            292,
-            315,
-            243,
-            183,
-            158,
-            160
           ],
           "available_days": [
             "Thursday",
@@ -1374,7 +1391,7 @@
           "name": "Will Bastien",
           "gender": "M",
           "age": 40,
-          "weight": 170,
+          "weight": 180,
           "can_port": false,
           "can_starboard": true,
           "can_scull": true,
@@ -1397,7 +1414,7 @@
           "name": "Stephen Kasprzyk",
           "gender": "M",
           "age": 43,
-          "weight": 210,
+          "weight": 225,
           "can_port": false,
           "can_starboard": true,
           "can_scull": false,
@@ -1421,14 +1438,16 @@
         "name": "Caitlin Turner",
         "gender": "F",
         "age": 35,
-        "weight": 125,
+        "weight": 127,
         "can_port": false,
         "can_starboard": false,
-        "can_scull": false,
+        "can_scull": true,
         "can_cox": true,
         "preferred_events": [
           230,
-          243
+          243,
+          273,
+          300
         ],
         "available_days": [
           "Thursday",
@@ -1490,7 +1509,7 @@
           "name": "Will Bastien",
           "gender": "M",
           "age": 40,
-          "weight": 170,
+          "weight": 180,
           "can_port": false,
           "can_starboard": true,
           "can_scull": true,
@@ -1543,7 +1562,7 @@
           "name": "Mary Kaleta",
           "gender": "F",
           "age": 40,
-          "weight": 140,
+          "weight": 150,
           "can_port": true,
           "can_starboard": true,
           "can_scull": true,
@@ -1552,7 +1571,10 @@
             183,
             204,
             284,
-            340
+            340,
+            273,
+            301,
+            229
           ],
           "available_days": [
             "Thursday",
@@ -1570,7 +1592,7 @@
           "name": "Mary Kaleta",
           "gender": "F",
           "age": 40,
-          "weight": 140,
+          "weight": 150,
           "can_port": true,
           "can_starboard": true,
           "can_scull": true,
@@ -1579,7 +1601,10 @@
             183,
             204,
             284,
-            340
+            340,
+            273,
+            301,
+            229
           ],
           "available_days": [
             "Thursday",
@@ -1598,7 +1623,7 @@
           "name": "Mary Kaleta",
           "gender": "F",
           "age": 40,
-          "weight": 140,
+          "weight": 150,
           "can_port": true,
           "can_starboard": true,
           "can_scull": true,
@@ -1607,7 +1632,10 @@
             183,
             204,
             284,
-            340
+            340,
+            273,
+            301,
+            229
           ],
           "available_days": [
             "Thursday",
@@ -1865,27 +1893,595 @@
         }
       ],
       "coxswain": null
+    },
+    "174": {
+      "athletes": [
+        {
+          "name": "Will Bastien",
+          "gender": "M",
+          "age": 40,
+          "weight": 180,
+          "can_port": false,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            385,
+            230,
+            243,
+            300,
+            362
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Doug Brayton",
+          "gender": "M",
+          "age": 43,
+          "weight": 190,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            385,
+            230,
+            243,
+            284,
+            300,
+            362
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "394": {
+      "athletes": [
+        {
+          "name": "Sasha Foster",
+          "gender": "F",
+          "age": 53,
+          "weight": 165,
+          "can_port": false,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Aimee Wessel",
+          "gender": "F",
+          "age": 41,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": false,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394,
+            229,
+            169
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "169": {
+      "athletes": [
+        {
+          "name": "Mabel Gomes",
+          "gender": "F",
+          "age": 43,
+          "weight": 145,
+          "can_port": false,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Sasha Foster",
+          "gender": "F",
+          "age": 53,
+          "weight": 165,
+          "can_port": false,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Aimee Wessel",
+          "gender": "F",
+          "age": 41,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": false,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394,
+            229,
+            169
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Donna Pili",
+          "gender": "F",
+          "age": 54,
+          "weight": 180,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "265": {
+      "athletes": [
+        {
+          "name": "Pattie Pinkerton",
+          "gender": "F",
+          "age": 74,
+          "weight": 155,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            265
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "322": {
+      "athletes": [
+        {
+          "name": "Hunter Butler",
+          "gender": "M",
+          "age": 70,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            180,
+            266
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Ralph Johnson",
+          "gender": "M",
+          "age": 77,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            180,
+            266
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "378": {
+      "athletes": [
+        {
+          "name": "Jan de Jong",
+          "gender": "M",
+          "age": 64,
+          "weight": 165,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [],
+          "available_days": [
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Neal Shuster ",
+          "gender": "M",
+          "age": 78,
+          "weight": 220,
+          "can_port": true,
+          "can_starboard": false,
+          "can_scull": false,
+          "can_cox": false,
+          "preferred_events": [
+            323
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "George Shuster ",
+          "gender": "M",
+          "age": 77,
+          "weight": 220,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            323
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Hunter Butler",
+          "gender": "M",
+          "age": 70,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            180,
+            266
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "323": {
+      "athletes": [
+        {
+          "name": "George Shuster ",
+          "gender": "M",
+          "age": 77,
+          "weight": 220,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            323
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Neal Shuster ",
+          "gender": "M",
+          "age": 78,
+          "weight": 220,
+          "can_port": true,
+          "can_starboard": false,
+          "can_scull": false,
+          "can_cox": false,
+          "preferred_events": [
+            323
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "301": {
+      "athletes": [
+        {
+          "name": "Mary Kaleta",
+          "gender": "F",
+          "age": 40,
+          "weight": 150,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            183,
+            204,
+            284,
+            340,
+            273,
+            301,
+            229
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Weronika Yakubov",
+          "gender": "F",
+          "age": 29,
+          "weight": 135,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            222
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Aimee Wessel",
+          "gender": "F",
+          "age": 41,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": false,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394,
+            229,
+            169
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Sasha Foster",
+          "gender": "F",
+          "age": 53,
+          "weight": 165,
+          "can_port": false,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "273": {
+      "athletes": [
+        {
+          "name": "Mary Kaleta",
+          "gender": "F",
+          "age": 40,
+          "weight": 150,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            183,
+            204,
+            284,
+            340,
+            273,
+            301,
+            229
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Caitlin Turner",
+          "gender": "F",
+          "age": 35,
+          "weight": 127,
+          "can_port": false,
+          "can_starboard": false,
+          "can_scull": true,
+          "can_cox": true,
+          "preferred_events": [
+            230,
+            243,
+            273,
+            300
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
+    },
+    "229": {
+      "athletes": [
+        {
+          "name": "Mary Kaleta",
+          "gender": "F",
+          "age": 40,
+          "weight": 150,
+          "can_port": true,
+          "can_starboard": true,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            183,
+            204,
+            284,
+            340,
+            273,
+            301,
+            229
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        },
+        {
+          "name": "Aimee Wessel",
+          "gender": "F",
+          "age": 41,
+          "weight": 160,
+          "can_port": true,
+          "can_starboard": false,
+          "can_scull": true,
+          "can_cox": false,
+          "preferred_events": [
+            394,
+            229,
+            169
+          ],
+          "available_days": [
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ]
+        }
+      ],
+      "coxswain": null
     }
   },
   "selected_events": [
     385,
+    265,
     266,
+    394,
+    273,
     284,
     158,
-    160,
     292,
+    169,
     300,
+    301,
+    174,
     180,
     183,
     315,
+    322,
+    323,
     204,
     340,
     222,
     225,
     355,
+    229,
     230,
     362,
     243,
+    378,
     254
   ],
   "boats": [
@@ -2213,13 +2809,6 @@
       "min_weight": 145,
       "max_weight": 175
     },
-    "160": {
-      "name": "Peszek",
-      "boat_type": "1x",
-      "num_seats": 1,
-      "min_weight": 198,
-      "max_weight": 220
-    },
     "180": {
       "name": "Ninja Princess",
       "boat_type": "2-/2x",
@@ -2235,11 +2824,11 @@
       "max_weight": 180
     },
     "204": {
-      "name": "Tiny Dancer",
+      "name": "Ninja Princess",
       "boat_type": "2-/2x",
       "num_seats": 2,
-      "min_weight": 115,
-      "max_weight": 150
+      "min_weight": 145,
+      "max_weight": 175
     },
     "222": {
       "name": "Ninja Princess",
@@ -2259,6 +2848,20 @@
       "name": "Dodd Wragg",
       "boat_type": "4+",
       "num_seats": 4,
+      "min_weight": 165,
+      "max_weight": 195
+    },
+    "169": {
+      "name": "The Gwynn",
+      "boat_type": "4-/4x",
+      "num_seats": 4,
+      "min_weight": 145,
+      "max_weight": 180
+    },
+    "174": {
+      "name": "B + F",
+      "boat_type": "2-/2x",
+      "num_seats": 2,
       "min_weight": 165,
       "max_weight": 195
     },
@@ -2297,6 +2900,13 @@
       "min_weight": 165,
       "max_weight": 195
     },
+    "229": {
+      "name": "Ninja Princess",
+      "boat_type": "2-/2x",
+      "num_seats": 2,
+      "min_weight": 145,
+      "max_weight": 175
+    },
     "300": {
       "name": "1888",
       "boat_type": "8+",
@@ -2311,12 +2921,26 @@
       "min_weight": 198,
       "max_weight": 220
     },
-    "340": {
-      "name": "Still I Rise",
+    "265": {
+      "name": "Rob Hibler",
       "boat_type": "1x",
       "num_seats": 1,
+      "min_weight": 145,
+      "max_weight": 175
+    },
+    "273": {
+      "name": "Tiny Dancer",
+      "boat_type": "2-/2x",
+      "num_seats": 2,
       "min_weight": 115,
-      "max_weight": 145
+      "max_weight": 150
+    },
+    "340": {
+      "name": "Rob Hibler",
+      "boat_type": "1x",
+      "num_seats": 1,
+      "min_weight": 145,
+      "max_weight": 175
     },
     "355": {
       "name": "B + F",
@@ -2332,12 +2956,54 @@
       "min_weight": 165,
       "max_weight": 195
     },
+    "301": {
+      "name": "The Gwynn",
+      "boat_type": "4-/4x",
+      "num_seats": 4,
+      "min_weight": 145,
+      "max_weight": 180
+    },
     "385": {
       "name": "Dodd Wragg",
       "boat_type": "4+",
       "num_seats": 4,
       "min_weight": 165,
       "max_weight": 195
+    },
+    "322": {
+      "name": "Ninja Princess",
+      "boat_type": "2-/2x",
+      "num_seats": 2,
+      "min_weight": 145,
+      "max_weight": 175
+    },
+    "323": {
+      "name": "Robert E Eikel",
+      "boat_type": "2-/2x",
+      "num_seats": 2,
+      "min_weight": 195,
+      "max_weight": 225
+    },
+    "378": {
+      "name": "Glenn Schweighardt",
+      "boat_type": "4-/4x",
+      "num_seats": 4,
+      "min_weight": 165,
+      "max_weight": 195
+    },
+    "394": {
+      "name": "Ninja Princess",
+      "boat_type": "2-/2x",
+      "num_seats": 2,
+      "min_weight": 145,
+      "max_weight": 175
+    },
+    "160": {
+      "name": "Peszek",
+      "boat_type": "1x",
+      "num_seats": 1,
+      "min_weight": 198,
+      "max_weight": 220
     }
   }
 }
