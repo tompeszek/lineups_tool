@@ -108,18 +108,33 @@ def render_data_tab():
                                     st.session_state.load_success_message = None
                         
                         with col_delete:
-                            if st.button(f"🗑️", key=f"delete_{preset['filename']}", use_container_width=True, 
-                                       help="Delete this preset"):
-                                if st.session_state.get(f"confirm_delete_{preset['filename']}", False):
+                            confirm_key = f"confirm_delete_{preset['filename']}"
+                            
+                            # Check if we're in confirmation mode for this preset
+                            if st.session_state.get(confirm_key, False):
+                                # Show confirmation button
+                                if st.button("✅ Confirm Delete", key=f"confirm_del_{preset['filename']}", 
+                                           use_container_width=True, type="primary"):
                                     result = data_manager.delete_preset(preset['filepath'])
                                     if result["success"]:
                                         st.success(result["message"])
+                                        # Clear the confirmation state
+                                        st.session_state[confirm_key] = False
                                         st.rerun()
                                     else:
                                         st.error(result["message"])
-                                else:
-                                    st.session_state[f"confirm_delete_{preset['filename']}"] = True
-                                    st.warning(f"Click delete again to confirm deletion of '{preset['name']}'")
+                                        st.session_state[confirm_key] = False
+                                
+                                # Also show a cancel button
+                                if st.button("❌ Cancel", key=f"cancel_del_{preset['filename']}", 
+                                           use_container_width=True):
+                                    st.session_state[confirm_key] = False
+                                    st.rerun()
+                            else:
+                                # Show initial delete button
+                                if st.button("🗑️", key=f"delete_{preset['filename']}", use_container_width=True, 
+                                           help="Delete this preset"):
+                                    st.session_state[confirm_key] = True
                                     st.rerun()
     
     st.divider()
