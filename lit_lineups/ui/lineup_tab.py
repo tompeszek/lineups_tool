@@ -109,7 +109,18 @@ def _has_enough_eligible_athletes(event_name):
     """Check if we have enough eligible athletes for an event"""
     requirements = parse_event_requirements(event_name)
     eligible_count = sum(1 for athlete in st.session_state.athletes if _athlete_fits_basic_requirements(athlete, event_name))
-    return eligible_count >= 1  # At least one athlete needed
+    
+    # Check if we have enough rowers
+    if eligible_count < requirements['num_rowers']:
+        return False
+    
+    # If event needs a coxswain, check if we have one available
+    if requirements['has_cox']:
+        cox_count = sum(1 for athlete in st.session_state.athletes if athlete.can_cox)
+        if cox_count < 1:
+            return False
+    
+    return True
 
 def _athlete_fits_basic_requirements(athlete, event_name):
     """Check if athlete meets basic requirements for an event"""
@@ -150,6 +161,10 @@ def _format_athlete_info(athlete):
     elif athlete.can_starboard:
         boat_types.append("S")
     
+    # Add coxswain capability
+    if athlete.can_cox:
+        boat_types.append("COX")
+    
     boat_str = "-".join(boat_types)
     return f"{athlete.gender}-{boat_str}-{athlete.age}({athlete.age_category})"
 
@@ -174,12 +189,20 @@ def _render_lineup_management(selected_event, event_name):
     eligible_athletes = [a for a in st.session_state.athletes if _athlete_fits_basic_requirements(a, event_name)]
     day_available_athletes = [a for a in eligible_athletes if a.is_available_on_day(event_day)]
     
+    # For coxed events, also include athletes who can cox (even if they can't row this event)
+    if requirements['has_cox']:
+        eligible_coxswains = [a for a in st.session_state.athletes if a.can_cox and a.is_available_on_day(event_day)]
+        # Combine rowers and coxswains, removing duplicates
+        all_available = list(set(day_available_athletes + eligible_coxswains))
+    else:
+        all_available = day_available_athletes
+    
     # Remove athletes already in lineup
     assigned_athletes = set([a for a in current_lineup.get('athletes', []) if a is not None])
     if current_lineup.get('coxswain'):
         assigned_athletes.add(current_lineup['coxswain'])
     
-    available_athletes = [a for a in day_available_athletes if a not in assigned_athletes]
+    available_athletes = [a for a in all_available if a not in assigned_athletes]
     
     if not available_athletes:
         st.write("No available athletes for this event/day")
