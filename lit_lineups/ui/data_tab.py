@@ -4,190 +4,183 @@ from services.data_manager import DataManager
 
 def render_data_tab():
     """Render the data management tab"""
-    st.header("Data Management")
-    
-    # Show currently loaded preset info
-    if hasattr(st.session_state, 'auto_loaded_preset') and st.session_state.auto_loaded_preset:
-        st.success(f"📂 Currently loaded: **{st.session_state.auto_loaded_preset}** (auto-loaded)")
-    
-    # Show auto-load message if present
-    if hasattr(st.session_state, 'auto_load_message') and st.session_state.auto_load_message:
-        st.info(f"🔄 {st.session_state.auto_load_message}")
-        if st.button("Clear auto-load message"):
-            del st.session_state.auto_load_message
-            st.rerun()
-    
-    if hasattr(st.session_state, 'auto_load_error') and st.session_state.auto_load_error:
-        st.warning(f"⚠️ Auto-load issue: {st.session_state.auto_load_error}")
-        if st.button("Clear auto-load error"):
-            del st.session_state.auto_load_error
-            st.rerun()
+    st.header("💾 Data Management")
     
     data_manager = DataManager()
     
-    # Create three columns for the main sections
-    col1, col2, col3 = st.columns([1, 1, 1])
+    # Show currently loaded preset info
+    if hasattr(st.session_state, 'auto_loaded_preset') and st.session_state.auto_loaded_preset:
+        st.info(f"📂 **{st.session_state.auto_loaded_preset}** is currently loaded")
     
-    with col1:
-        st.subheader("💾 Save Data")
-        st.write("Export current state to a JSON file")
-        
-        if st.button("Generate Save File", use_container_width=True):
-            json_data, _ = data_manager.save_data()
-            st.download_button(
-                label="📥 Download File",
-                data=json_data,
-                file_name=f"rowing_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
-                mime="application/json",
-                use_container_width=True
-            )
+    # Show auto-load messages compactly
+    if hasattr(st.session_state, 'auto_load_message') and st.session_state.auto_load_message:
+        col_msg, col_clear = st.columns([4, 1])
+        with col_msg:
+            st.success(st.session_state.auto_load_message)
+        with col_clear:
+            if st.button("✕", key="clear_auto_msg", help="Clear message"):
+                del st.session_state.auto_load_message
+                st.rerun()
     
-    with col2:
-        st.subheader("📤 Load Data")
-        st.write("Upload a previously saved JSON file")
-        
-        uploaded_file = st.file_uploader("Choose a JSON file", type=['json'])
-        if uploaded_file is not None:
-            # Create a unique identifier for this file
-            file_id = f"{uploaded_file.name}_{uploaded_file.size}"
-            
-            if file_id not in st.session_state.get('processed_files', set()):
-                json_str = uploaded_file.read().decode('utf-8')
-                result = data_manager.load_data(json_str)
-                if result["success"]:
-                    st.session_state.load_success_message = result["message"]
-                    st.session_state.load_error_message = None
-                    
-                    # Track that we've processed this file
-                    if 'processed_files' not in st.session_state:
-                        st.session_state.processed_files = set()
-                    st.session_state.processed_files.add(file_id)
-                    
-                    st.rerun()
-                else:
-                    st.session_state.load_error_message = result["message"] + "\n\n" + result.get("traceback", "")
-                    st.session_state.load_success_message = None
+    if hasattr(st.session_state, 'auto_load_error') and st.session_state.auto_load_error:
+        col_err, col_clear = st.columns([4, 1])
+        with col_err:
+            st.error(f"Auto-load issue: {st.session_state.auto_load_error}")
+        with col_clear:
+            if st.button("✕", key="clear_auto_err", help="Clear error"):
+                del st.session_state.auto_load_error
+                st.rerun()
     
-    with col3:
-        st.subheader("⭐ Save as Preset")
-        st.write("Save current state as a reusable preset")
-        
-        with st.form("save_preset_form"):
-            preset_name = st.text_input("Preset Name", placeholder="e.g., 'RowFest 2025 Base Setup'")
-            preset_description = st.text_area("Description (optional)", placeholder="Brief description of this preset...")
-            
-            if st.form_submit_button("Save Preset", use_container_width=True):
-                if preset_name.strip():
-                    result = data_manager.save_preset(preset_name.strip(), preset_description.strip())
-                    if result["success"]:
-                        st.success(result["message"])
-                    else:
-                        st.error(result["message"])
-                else:
-                    st.error("Please enter a preset name")
+    # === PRESETS SECTION (TOP PRIORITY) ===
+    st.subheader("📋 Presets")
     
-    st.divider()
+    # Sort dropdown directly under the label
+    sort_option = st.selectbox(
+        "Sort by:",
+        ["Most Recent", "Name"],
+        key="preset_sort_option"
+    )
     
-    # Presets section
-    preset_col1, preset_col2 = st.columns([3, 1])
-    
-    with preset_col1:
-        st.subheader("📋 Available Presets")
-    
-    with preset_col2:
-        sort_option = st.selectbox(
-            "Sort by:",
-            ["Most Recent", "Name"],
-            key="preset_sort_option"
-        )
+    # LOAD EXISTING PRESETS SUBSECTION
+    st.markdown("### 📂 Load Existing Presets")
     
     presets = data_manager.get_available_presets(sort_by_date=(sort_option == "Most Recent"))
     
     if not presets:
-        st.info("No presets available. Save your current state as a preset to get started!")
+        st.info("💡 No saved presets found. Create your first preset below!")
     else:
-        # Display presets in a nice grid
-        cols_per_row = 2
+        # Compact preset display - 3 per row
+        cols_per_row = 3
         for i in range(0, len(presets), cols_per_row):
             cols = st.columns(cols_per_row)
             
             for j, preset in enumerate(presets[i:i+cols_per_row]):
                 with cols[j]:
                     with st.container(border=True):
-                        # Show if this is the most recent preset
+                        # Compact preset info
                         most_recent_indicator = " 🌟" if i == 0 and j == 0 and sort_option == "Most Recent" else ""
-                        st.write(f"**{preset['name']}**{most_recent_indicator}")
-                        if preset['description']:
-                            st.write(f"*{preset['description']}*")
+                        st.markdown(f"**{preset['name']}**{most_recent_indicator}")
                         
-                        st.write(f"📊 {preset['athletes_count']} athletes, {preset['lineups_count']} lineups, {preset['boats_count']} boats")
+                        # Compact stats
+                        st.caption(f"👥 {preset['athletes_count']} • 🚣 {preset['lineups_count']} • ⛵ {preset['boats_count']}")
                         
-                        # Format the date more nicely
-                        saved_at_display = preset['saved_at']
-                        if saved_at_display != 'Unknown':
+                        # Compact date
+                        if preset['saved_at'] != 'Unknown':
                             try:
-                                saved_datetime = datetime.fromisoformat(saved_at_display.replace('Z', '+00:00'))
-                                saved_at_display = saved_datetime.strftime("%Y-%m-%d %H:%M")
-                            except (ValueError, AttributeError):
-                                saved_at_display = saved_at_display[:16] if len(saved_at_display) > 16 else saved_at_display
+                                saved_datetime = datetime.fromisoformat(preset['saved_at'].replace('Z', '+00:00'))
+                                date_str = saved_datetime.strftime("%m/%d %H:%M")
+                            except:
+                                date_str = preset['saved_at'][:10]
+                            st.caption(f"🕒 {date_str}")
                         
-                        st.write(f"🕒 Saved: {saved_at_display}")
-                        
-                        col_load, col_delete = st.columns(2)
-                        
+                        # Action buttons
+                        col_load, col_del = st.columns([2, 1])
                         with col_load:
-                            if st.button(f"Load", key=f"load_{preset['filename']}", use_container_width=True):
+                            if st.button("Load", key=f"load_{preset['filename']}", use_container_width=True, type="primary"):
                                 result = data_manager.load_preset(preset['filepath'])
                                 if result["success"]:
-                                    st.session_state.load_success_message = f"Loaded preset '{preset['name']}' successfully!"
-                                    st.session_state.load_error_message = None
+                                    st.session_state.load_success_message = f"Loaded '{preset['name']}'!"
                                     st.rerun()
                                 else:
                                     st.session_state.load_error_message = result["message"]
-                                    st.session_state.load_success_message = None
                         
-                        with col_delete:
+                        with col_del:
                             confirm_key = f"confirm_delete_{preset['filename']}"
-                            
-                            # Check if we're in confirmation mode for this preset
                             if st.session_state.get(confirm_key, False):
-                                # Show confirmation button
-                                if st.button("✅ Confirm Delete", key=f"confirm_del_{preset['filename']}", 
-                                           use_container_width=True, type="primary"):
+                                if st.button("✅", key=f"confirm_del_{preset['filename']}", use_container_width=True, help="Confirm delete"):
                                     result = data_manager.delete_preset(preset['filepath'])
                                     if result["success"]:
-                                        st.success(result["message"])
-                                        # Clear the confirmation state
+                                        st.success("Deleted!")
                                         st.session_state[confirm_key] = False
                                         st.rerun()
-                                    else:
-                                        st.error(result["message"])
-                                        st.session_state[confirm_key] = False
-                                
-                                # Also show a cancel button
-                                if st.button("❌ Cancel", key=f"cancel_del_{preset['filename']}", 
-                                           use_container_width=True):
-                                    st.session_state[confirm_key] = False
-                                    st.rerun()
                             else:
-                                # Show initial delete button
-                                if st.button("🗑️", key=f"delete_{preset['filename']}", use_container_width=True, 
-                                           help="Delete this preset"):
+                                if st.button("🗑️", key=f"delete_{preset['filename']}", use_container_width=True, help="Delete preset"):
                                     st.session_state[confirm_key] = True
                                     st.rerun()
     
+    # Clear visual separation
+    st.markdown("---")
+    
+    # SAVE NEW PRESET SUBSECTION
+    st.markdown("### 💾 Save Current State as New Preset")
+    
+    with st.container(border=True):
+        st.write("**Create a new preset from your current athlete roster, lineups, and boat assignments**")
+        
+        with st.form("save_preset_form", clear_on_submit=True):
+            col1, col2, col3 = st.columns([2, 2, 1])
+            with col1:
+                preset_name = st.text_input("Preset Name", placeholder="e.g., RowFest 2025 Setup")
+            with col2:
+                preset_description = st.text_input("Description (optional)", placeholder="Brief description...")
+            with col3:
+                save_button = st.form_submit_button("⭐ Save Preset", use_container_width=True, type="primary")
+            
+            if save_button:
+                if preset_name.strip():
+                    result = data_manager.save_preset(preset_name.strip(), preset_description.strip())
+                    if result["success"]:
+                        st.success("✅ Preset saved successfully!")
+                        st.rerun()
+                    else:
+                        st.error(result["message"])
+                else:
+                    st.error("⚠️ Please enter a preset name")
+    
     st.divider()
     
-    # Show messages
+    # === IMPORT/EXPORT SECTION ===
+    st.subheader("💾 Import & Export")
+    
+    # Two column layout for import/export
+    import_col, export_col = st.columns(2)
+    
+    with import_col:
+        st.markdown("**📤 Import Data**")
+        uploaded_file = st.file_uploader("Upload a previously saved JSON file", type=['json'])
+        if uploaded_file is not None:
+            file_id = f"{uploaded_file.name}_{uploaded_file.size}"
+            if file_id not in st.session_state.get('processed_files', set()):
+                json_str = uploaded_file.read().decode('utf-8')
+                result = data_manager.load_data(json_str)
+                if result["success"]:
+                    st.session_state.load_success_message = result["message"]
+                    if 'processed_files' not in st.session_state:
+                        st.session_state.processed_files = set()
+                    st.session_state.processed_files.add(file_id)
+                    st.rerun()
+                else:
+                    st.session_state.load_error_message = result["message"]
+    
+    with export_col:
+        st.markdown("**📥 Export Data**")
+        st.write("Download current state as a JSON file")
+        if st.button("📥 Generate Download File", use_container_width=True):
+            json_data, _ = data_manager.save_data()
+            st.download_button(
+                label="💾 Download JSON",
+                data=json_data,
+                file_name=f"rowing_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                mime="application/json",
+                use_container_width=True
+            )
+    
+    
+    # Show messages compactly at bottom
     if hasattr(st.session_state, 'load_success_message') and st.session_state.load_success_message:
-        st.success(st.session_state.load_success_message)
-        if st.button("Clear message"):
-            st.session_state.load_success_message = None
-            st.rerun()
+        success_col, clear_col = st.columns([4, 1])
+        with success_col:
+            st.success(st.session_state.load_success_message)
+        with clear_col:
+            if st.button("✕", key="clear_success", help="Clear message"):
+                st.session_state.load_success_message = None
+                st.rerun()
 
     if hasattr(st.session_state, 'load_error_message') and st.session_state.load_error_message:
-        st.error("**Error loading data:**")
-        st.code(st.session_state.load_error_message)
-        if st.button("Clear error"):
-            st.session_state.load_error_message = None
-            st.rerun()
+        error_col, clear_col = st.columns([4, 1])
+        with error_col:
+            st.error(f"Error: {st.session_state.load_error_message}")
+        with clear_col:
+            if st.button("✕", key="clear_error", help="Clear error"):
+                st.session_state.load_error_message = None
+                st.rerun()
