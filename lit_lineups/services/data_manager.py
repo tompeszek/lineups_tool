@@ -17,19 +17,32 @@ class DataManager:
         self.presets_dir = Path(__file__).parent.parent / "presets"
         self.presets_dir.mkdir(exist_ok=True)
     
-    def get_available_presets(self):
+    def get_available_presets(self, sort_by_date=True):
         """Get list of available preset files"""
         presets = []
         for file_path in self.presets_dir.glob("*.json"):
             try:
                 with open(file_path, 'r') as f:
                     data = json.load(f)
+                
+                # Parse saved_at date for sorting (backwards compatible)
+                saved_at_str = data.get('saved_at', 'Unknown')
+                saved_at_datetime = None
+                if saved_at_str != 'Unknown':
+                    try:
+                        saved_at_datetime = datetime.fromisoformat(saved_at_str.replace('Z', '+00:00'))
+                    except (ValueError, AttributeError):
+                        # Fallback to file modification time for older presets
+                        saved_at_datetime = datetime.fromtimestamp(file_path.stat().st_mtime)
+                        saved_at_str = saved_at_datetime.isoformat()
+                
                 presets.append({
                     'filename': file_path.name,
                     'filepath': file_path,
                     'name': data.get('preset_name', file_path.stem),
                     'description': data.get('preset_description', 'No description'),
-                    'saved_at': data.get('saved_at', 'Unknown'),
+                    'saved_at': saved_at_str,
+                    'saved_at_datetime': saved_at_datetime,
                     'athletes_count': len(data.get('athletes', [])),
                     'lineups_count': len(data.get('lineups', {})),
                     'boats_count': len(data.get('boats', [])),
@@ -39,7 +52,11 @@ class DataManager:
             except Exception as e:
                 st.warning(f"Could not read preset {file_path.name}: {e}")
         
-        return sorted(presets, key=lambda x: x['name'])
+        if sort_by_date and presets:
+            # Sort by date (newest first), falling back to name for presets without dates
+            return sorted(presets, key=lambda x: (x['saved_at_datetime'] or datetime.min, x['name']), reverse=True)
+        else:
+            return sorted(presets, key=lambda x: x['name'])
     
     def save_data(self, preset_name=None, preset_description=None):
         """Save all data to JSON format"""
@@ -92,6 +109,11 @@ class DataManager:
         except Exception as e:
             return {"success": False, "message": f"Error saving preset: {str(e)}"}
     
+    def get_most_recent_preset(self):
+        """Get the most recently saved preset"""
+        presets = self.get_available_presets(sort_by_date=True)
+        return presets[0] if presets else None
+    
     def load_preset(self, preset_filepath):
         """Load a preset by filepath"""
         try:
@@ -100,6 +122,29 @@ class DataManager:
             return self.load_data(json_str)
         except Exception as e:
             return {"success": False, "message": f"Error loading preset: {str(e)}"}
+    
+    def auto_load_most_recent_preset(self):
+        """Automatically load the most recent preset if no data exists"""
+        # Only auto-load if session is essentially empty
+        if (len(getattr(st.session_state, 'athletes', [])) == 0 and 
+            len(getattr(st.session_state, 'lineups', {})) == 0 and
+            len(getattr(st.session_state, 'boats', [])) == 0):
+            
+            most_recent = self.get_most_recent_preset()
+            if most_recent:
+                result = self.load_preset(most_recent['filepath'])
+                if result["success"]:
+                    # Set a flag to indicate auto-loading happened
+                    st.session_state.auto_loaded_preset = most_recent['name']
+                    return {
+                        "success": True, 
+                        "message": f"Auto-loaded most recent preset: '{most_recent['name']}'",
+                        "preset_name": most_recent['name']
+                    }
+                else:
+                    return {"success": False, "message": f"Failed to auto-load preset: {result['message']}"}
+        
+        return {"success": False, "message": "Auto-load skipped - session already has data"}
     
     def delete_preset(self, preset_filepath):
         """Delete a preset file"""
@@ -288,6 +333,8 @@ class DataManager:
             preset_info = ""
             if data.get("preset_name"):
                 preset_info = f" from preset '{data['preset_name']}'"
+                # Update the currently loaded preset indicator
+                st.session_state.auto_loaded_preset = data['preset_name']
             
             event_statuses_info = f", event statuses ({len(st.session_state.event_statuses)} events)" if st.session_state.event_statuses else ""
             notes_info = f", notes ({len(st.session_state.notes)} chars)" if st.session_state.notes else ""

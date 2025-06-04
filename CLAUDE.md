@@ -78,4 +78,14 @@ All application data is stored in Streamlit's session state:
 ### Data Persistence
 - **JSON Format**: All data serializes to/from JSON for presets
 - **Preset Directory**: `lit_lineups/presets/` contains saved configurations
+- **Auto-loading**: Most recent preset automatically loads on app startup if session is empty
+- **Smart Sorting**: Presets sorted by save date (newest first) with fallback to alphabetical
+- **Backwards Compatibility**: Older presets without timestamps use file modification time
 - **Sample Data**: Built-in athlete roster and boat fleet for testing
+
+### Preset System Features
+- **Auto-load on Startup**: Automatically loads the most recent preset when app starts fresh
+- **Date-based Sorting**: Presets displayed newest first by default, with option to sort by name
+- **Visual Indicators**: Most recent preset marked with 🌟 in the UI
+- **Session Tracking**: Shows which preset is currently loaded
+- **Backwards Compatible**: Handles presets from older versions gracefully

@@ -34,3 +34,16 @@ def initialize_session_state():
         st.session_state.land_minutes_after = 15
     if 'boats_per_race' not in st.session_state:
         st.session_state.boats_per_race = 8
+    
+    # Auto-load most recent preset if this is a fresh session
+    if 'session_initialized' not in st.session_state:
+        st.session_state.session_initialized = True
+        from services.data_manager import DataManager
+        data_manager = DataManager()
+        auto_load_result = data_manager.auto_load_most_recent_preset()
+        
+        if auto_load_result["success"]:
+            st.session_state.auto_load_message = auto_load_result["message"]
+        elif "no data" not in auto_load_result["message"].lower():
+            # Only show error if it's not just "no data to auto-load"
+            st.session_state.auto_load_error = auto_load_result["message"]

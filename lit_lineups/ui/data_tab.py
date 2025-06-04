@@ -6,6 +6,23 @@ def render_data_tab():
     """Render the data management tab"""
     st.header("Data Management")
     
+    # Show currently loaded preset info
+    if hasattr(st.session_state, 'auto_loaded_preset') and st.session_state.auto_loaded_preset:
+        st.success(f"📂 Currently loaded: **{st.session_state.auto_loaded_preset}** (auto-loaded)")
+    
+    # Show auto-load message if present
+    if hasattr(st.session_state, 'auto_load_message') and st.session_state.auto_load_message:
+        st.info(f"🔄 {st.session_state.auto_load_message}")
+        if st.button("Clear auto-load message"):
+            del st.session_state.auto_load_message
+            st.rerun()
+    
+    if hasattr(st.session_state, 'auto_load_error') and st.session_state.auto_load_error:
+        st.warning(f"⚠️ Auto-load issue: {st.session_state.auto_load_error}")
+        if st.button("Clear auto-load error"):
+            del st.session_state.auto_load_error
+            st.rerun()
+    
     data_manager = DataManager()
     
     # Create three columns for the main sections
@@ -72,9 +89,19 @@ def render_data_tab():
     st.divider()
     
     # Presets section
-    st.subheader("📋 Available Presets")
+    preset_col1, preset_col2 = st.columns([3, 1])
     
-    presets = data_manager.get_available_presets()
+    with preset_col1:
+        st.subheader("📋 Available Presets")
+    
+    with preset_col2:
+        sort_option = st.selectbox(
+            "Sort by:",
+            ["Most Recent", "Name"],
+            key="preset_sort_option"
+        )
+    
+    presets = data_manager.get_available_presets(sort_by_date=(sort_option == "Most Recent"))
     
     if not presets:
         st.info("No presets available. Save your current state as a preset to get started!")
@@ -87,12 +114,24 @@ def render_data_tab():
             for j, preset in enumerate(presets[i:i+cols_per_row]):
                 with cols[j]:
                     with st.container(border=True):
-                        st.write(f"**{preset['name']}**")
+                        # Show if this is the most recent preset
+                        most_recent_indicator = " 🌟" if i == 0 and j == 0 and sort_option == "Most Recent" else ""
+                        st.write(f"**{preset['name']}**{most_recent_indicator}")
                         if preset['description']:
                             st.write(f"*{preset['description']}*")
                         
                         st.write(f"📊 {preset['athletes_count']} athletes, {preset['lineups_count']} lineups, {preset['boats_count']} boats")
-                        st.write(f"🕒 Saved: {preset['saved_at'][:10] if len(preset['saved_at']) > 10 else preset['saved_at']}")
+                        
+                        # Format the date more nicely
+                        saved_at_display = preset['saved_at']
+                        if saved_at_display != 'Unknown':
+                            try:
+                                saved_datetime = datetime.fromisoformat(saved_at_display.replace('Z', '+00:00'))
+                                saved_at_display = saved_datetime.strftime("%Y-%m-%d %H:%M")
+                            except (ValueError, AttributeError):
+                                saved_at_display = saved_at_display[:16] if len(saved_at_display) > 16 else saved_at_display
+                        
+                        st.write(f"🕒 Saved: {saved_at_display}")
                         
                         col_load, col_delete = st.columns(2)
                         
