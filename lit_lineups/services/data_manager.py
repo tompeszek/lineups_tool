@@ -1,5 +1,5 @@
 """
-Data save/load manager for roster, lineups, and equipment
+Data save/load manager for roster, lineups, equipment, and notes
 """
 import json
 import streamlit as st
@@ -32,7 +32,9 @@ class DataManager:
                     'saved_at': data.get('saved_at', 'Unknown'),
                     'athletes_count': len(data.get('athletes', [])),
                     'lineups_count': len(data.get('lineups', {})),
-                    'boats_count': len(data.get('boats', []))
+                    'boats_count': len(data.get('boats', [])),
+                    'event_statuses_count': len(data.get('event_statuses', {})),
+                    'has_notes': bool(data.get('notes', '').strip())
                 })
             except Exception as e:
                 st.warning(f"Could not read preset {file_path.name}: {e}")
@@ -42,7 +44,7 @@ class DataManager:
     def save_data(self, preset_name=None, preset_description=None):
         """Save all data to JSON format"""
         data = {
-            "version": "1.1",
+            "version": "1.2",
             "saved_at": datetime.now().isoformat(),
             "preset_name": preset_name,
             "preset_description": preset_description,
@@ -62,7 +64,9 @@ class DataManager:
             "lineups": self._serialize_lineups(),
             "selected_events": list(getattr(st.session_state, 'selected_events', set())),
             "boats": self._serialize_boats(),
-            "boat_assignments": self._serialize_boat_assignments()
+            "boat_assignments": self._serialize_boat_assignments(),
+            "event_statuses": getattr(st.session_state, 'event_statuses', {}),
+            "notes": getattr(st.session_state, 'notes', '')
         }
         
         json_str = json.dumps(data, indent=2)
@@ -258,6 +262,21 @@ class DataManager:
             st.session_state.boat_assignments = new_boat_assignments
             print(f"Set {len(st.session_state.boat_assignments)} boat assignments in session state")
             
+            # Load event statuses
+            event_statuses_data = data.get("event_statuses", {})
+            # Convert string keys back to integers
+            st.session_state.event_statuses = {int(k): v for k, v in event_statuses_data.items()}
+            print(f"Loaded event statuses: {len(st.session_state.event_statuses)} events")
+            
+            # Load notes
+            st.session_state.notes = data.get("notes", "")
+            print(f"Loaded notes: {len(st.session_state.notes)} characters")
+            
+            # Force UI refresh for notes by incrementing refresh counter
+            if 'notes_refresh_counter' not in st.session_state:
+                st.session_state.notes_refresh_counter = 0
+            st.session_state.notes_refresh_counter += 1
+            
             # Load selected events
             if "selected_events" in data:
                 st.session_state.selected_events = set(data["selected_events"])
@@ -270,9 +289,12 @@ class DataManager:
             if data.get("preset_name"):
                 preset_info = f" from preset '{data['preset_name']}'"
             
+            event_statuses_info = f", event statuses ({len(st.session_state.event_statuses)} events)" if st.session_state.event_statuses else ""
+            notes_info = f", notes ({len(st.session_state.notes)} chars)" if st.session_state.notes else ""
+            
             return {
                 "success": True, 
-                "message": f"Successfully loaded{preset_info}: {len(st.session_state.athletes)} athletes, {len(st.session_state.lineups)} lineups, {len(st.session_state.boats)} boats, and {len(st.session_state.boat_assignments)} boat assignments",
+                "message": f"Successfully loaded{preset_info}: {len(st.session_state.athletes)} athletes, {len(st.session_state.lineups)} lineups, {len(st.session_state.boats)} boats, {len(st.session_state.boat_assignments)} boat assignments{event_statuses_info}{notes_info}",
                 "timestamp": data.get('saved_at', 'unknown time')
             }
             

@@ -2,6 +2,7 @@ import streamlit as st
 import os
 from datetime import datetime
 from debug_utils import enable_debugging
+from ui.notes_tab import render_notes_tab
 from ui.roster_tab import render_roster_tab
 from ui.lineup_tab import render_lineup_tab
 from ui.schedule_tab import render_schedule_tab
@@ -9,6 +10,8 @@ from ui.athlete_tab import render_athlete_tab
 from ui.equipment_tab import render_equipment_tab
 from ui.data_tab import render_data_tab
 from ui.issues_tab import render_issues_tab
+from ui.grid_tab import render_assignments_overview_tab
+from ui.events_tab import render_event_planning_tab
 from models.session_state import initialize_session_state
 
 # Set page config for wide layout
@@ -103,14 +106,16 @@ st.session_state.min_gap_minutes = st.sidebar.number_input(
 )
 
 # Main tabs
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs([
     "💾 Data Management",
     "📋 Roster Management", 
-    "🏁 Event Lineups", 
-    "📅 Schedule View", 
-    "👤 Athlete View", 
-    "⛵ Equipment",
-    "⚠️ Issues"
+    "🏁 Event Lineups",
+    "⛵ Equipment", 
+    "📅 Schedule View",       
+    "📊 Assignments Overview",
+    "👤 Athlete View",
+    "⚠️ Issues",
+    "📝 Notes"
 ])
 
 with tab1:
@@ -120,16 +125,22 @@ with tab2:
     render_roster_tab()
 
 with tab3:
-    render_lineup_tab()
+    render_lineup_tab()  # This should be Event Lineups
 
 with tab4:
-    render_schedule_tab()
-
-with tab5:
-    render_athlete_tab()
-
-with tab6:
     render_equipment_tab()
 
+with tab5:
+    render_schedule_tab()
+
+with tab6:
+    render_assignments_overview_tab()
+
 with tab7:
+    render_athlete_tab()
+
+with tab8:
     render_issues_tab()
+
+with tab9:
+    render_notes_tab()  # This was tab9, should be tab10
